@@ -10,7 +10,7 @@ Welcome to my Cisco networking lab repository!
 |------|-------------|-----------|---------|
 | ICMP.ARP.pkt | ARP and ICMP connectivity test | ARP, ICMP | 2x PCs, 2x 2960 switches |
 | static-routing-lab.pkt | Static routing between 3 networks | ICMP, Static Routing | Router0, 4x PCs, 2960 switch |
-| large-office-network.pkt | Large office network with 50+ PCs | Ethernet, Broadcast | 50+ PCs, multiple switches |
+| vlan-segmentation-lab.pkt | VLAN segmentation with multiple PCs | VLAN, Ethernet, Broadcast isolation | 50+ PCs, managed switches |
 
 ---
 

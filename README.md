@@ -1,198 +1,290 @@
-# 🖧 Cisco Packet Tracer Lab Repository
+<div align="center">
 
-> 📚 A structured, hands-on collection of Cisco networking labs — built while preparing for **CCNA (200-301)**
-> From basic ARP/ICMP to advanced EIGRP dynamic routing with partial mesh topologies.
+# 🌐 Cisco Packet Tracer Labs
+### ▸ CCNA 200-301 Hands-On Practice Repository ◂
 
-![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-blue?style=for-the-badge&logo=cisco)
-![CCNA](https://img.shields.io/badge/Certification-CCNA%20200--301-green?style=for-the-badge)
-![Labs](https://img.shields.io/badge/Labs-9%20and%20Growing-orange?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=22&pause=1000&color=00C4FF&center=true&vCenter=true&width=600&lines=Learning+Networking+One+Lab+at+a+Time;CCNA+200-301+in+Progress...;Cisco+%7C+Routing+%7C+Switching+%7C+VLANs" alt="Typing SVG" />
 
----
+<br/>
 
-## 📁 Labs Included
+![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
+![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
+![Labs](https://img.shields.io/badge/Total%20Labs-9-FF6B35?style=for-the-badge&logo=files&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge&logo=target&logoColor=white)
+![GitHub](https://img.shields.io/badge/Open%20Source-Yes-brightgreen?style=for-the-badge&logo=github&logoColor=white)
 
-| # | File | Description | Technologies | Devices |
-|---|------|-------------|--------------|---------|
-| 1 | `1,connectivity,ICMP,ARP.pkt` | ARP and ICMP connectivity test | ARP, ICMP | 2x PCs, 2x 2960 Switches |
-| 2 | `2.router,conf.pkt` | Basic router configuration & static routing | Static Routing | Router, 4x PCs, 2960 Switch |
-| 3 | `vlan-trunk-4vlans.pkt` | VLAN segmentation with trunk links | VLAN, Trunk | Multiple PCs, Managed Switches |
-| 4 | `4.stp.conf.pkt` | STP, Root Bridge election, BPDU Guard | STP, BPDU Guard | 3x Switches |
-| 5 | `6.rstp.hub.linktype.pkt` | RSTP root bridge and port priority | RSTP (802.1w) | Multiple Switches, Hub |
-| 6 | `9.L3,switches.pkt` | Layer 3 switch inter-VLAN routing | SVI, Static Routing | L2+L3 Switches, Router, 8 PCs |
-| 7 | `8.ROAS,vlan.pkt` | Router-on-a-Stick inter-VLAN routing | VLAN, 802.1Q, Subinterfaces | L2 Switch, Router, 8+ PCs |
-| 8 | `static.floating.routing.pkt` | OSPF + Static + Floating Static Route | OSPF, Static Routing, Floating Static | 4x Routers, 2x PCs |
-| 9 | `eigrp-partial-mesh-lab.pkt` | EIGRP dynamic routing on partial mesh | EIGRP, Wildcard Mask, /30 Links | 4x Routers, 1x Switch, 1x PC |
+<br/>
+
+> 💡 *"Tell me and I forget. Teach me and I remember. Involve me and I learn."* — Benjamin Franklin
+
+</div>
 
 ---
 
-## 🎯 Lab Highlights
+## 👨‍💻 About This Repo
 
-### Lab 8: OSPF + Static + Floating Static Route
-- **Topology:** `PC0 — R0 — R1 — R2 — R3 — PC1`
-- **OSPF:** Dynamic routing across all routers (Area 0)
-- **Static Routing:** Manual routes as full backup
-- **Floating Static:** High AD (200) backup if OSPF fails
-- **Subnetting:** /30 for point-to-point links, /24 for LANs
-
-### Lab 9: EIGRP Partial Mesh ⭐ LATEST
-- **Topology:** Partial mesh — Router0 connects to Router1 & Router2; both connect to Router3
-- **EIGRP AS:** 1 (all routers same Autonomous System)
-- **Neighbors verified:** `show ip eigrp neighbors`
-- **Routes learned:** `show ip route eigrp`
-- **Wildcard Masks used:**
-  - `/30` links → wildcard `0.0.0.3`
-  - `/24` LAN   → wildcard `0.0.0.255`
+> 🎓 Currently preparing for **Cisco CCNA 200-301**
+> 📁 Every lab I practice gets documented and uploaded here
+> 🤝 Feel free to clone, study, and learn from these labs
+> 🔗 Connect: [LinkedIn](https://www.linkedin.com/in/hamza-malik-791ba8301/) • [GitHub](https://github.com/hamzamalik97)
 
 ---
 
-## 🗺️ Lab 9 Topology
+## 📊 My Progress
 
 ```
-          [Router0]
-         /         \
-   Gig0/1           Gig0/0
-  10.0.12.0/30    10.0.13.0/30
-       |                |
-  [Router1]         [Router2]
-   Gig0/1            Gig0/1
-  10.0.24.0/30    10.0.34.0/30
-       \                /
+ARP / ICMP          ████████████████████  100% ✅
+Static Routing      ████████████████████  100% ✅
+VLANs & Trunking    ████████████████████  100% ✅
+STP / RSTP          ████████████████████  100% ✅
+Inter-VLAN Routing  ████████████████████  100% ✅
+OSPF                ████████████████████  100% ✅
+EIGRP               █████████████████░░░   85% 🔄
+ACLs                ░░░░░░░░░░░░░░░░░░░░    0% ⏳
+NAT / PAT           ░░░░░░░░░░░░░░░░░░░░    0% ⏳
+DHCP / DNS          ░░░░░░░░░░░░░░░░░░░░    0% ⏳
+```
+
+---
+
+## 📁 All Labs
+
+<div align="center">
+
+| # | 🗂️ File | 📋 Topic | 🔧 Technologies | 📡 Devices |
+|:---:|--------|----------|----------------|-----------|
+| `01` | `1,connectivity,ICMP,ARP.pkt` | ARP & ICMP Connectivity | ARP, ICMP, Ping | 2x PC, 2x Switch |
+| `02` | `2.router,conf.pkt` | Basic Router + Static Routing | Static Routing, IP Config | Router, 4x PC, Switch |
+| `03` | `vlan-trunk-4vlans.pkt` | VLAN Segmentation & Trunking | VLAN, 802.1Q Trunk | Multiple PCs, Switches |
+| `04` | `4.stp.conf.pkt` | STP & BPDU Guard | STP, BPDU Guard, Root Bridge | 3x Switches |
+| `05` | `6.rstp.hub.linktype.pkt` | RSTP Root Bridge & Port Priority | RSTP (802.1w), Hub | Switches, Hub |
+| `06` | `9.L3,switches.pkt` | Layer 3 Inter-VLAN Routing | SVI, L3 Switch, Static Route | L2+L3 Switches, 8x PC |
+| `07` | `8.ROAS,vlan.pkt` | Router-on-a-Stick | VLAN, 802.1Q, Subinterfaces | Router, Switch, 8x PC |
+| `08` | `static.floating.routing.pkt` | OSPF + Floating Static Backup | OSPF, Static, Floating Route | 4x Routers, 2x PC |
+| `09` | `eigrp-partial-mesh-lab.pkt` | EIGRP Partial Mesh ⭐ | EIGRP, Wildcard Mask, /30 | 4x Routers, Switch, PC |
+
+</div>
+
+---
+
+## 🔬 Lab Deep Dives
+
+<details>
+<summary>📦 <b>Lab 01 — ARP & ICMP Connectivity</b></summary>
+
+```
+PC0 ──── Switch0 ──── Switch1 ──── PC1
+```
+- **Goal:** Verify Layer 2 ARP resolution and Layer 3 ICMP ping
+- **Key Command:** `ping`, `arp -a`
+- **Result:** ✅ End-to-end connectivity confirmed
+
+</details>
+
+<details>
+<summary>📦 <b>Lab 02 — Static Routing</b></summary>
+
+```
+PC0 ── Router0 ── Router1 ── PC1
+```
+- **Goal:** Manually configure routes between networks
+- **Key Command:** `ip route [network] [mask] [next-hop]`
+- **Result:** ✅ PC0 can ping PC1 across routers
+
+</details>
+
+<details>
+<summary>📦 <b>Lab 06 — Layer 3 Inter-VLAN Routing</b></summary>
+
+- **VLANs:** 10, 20, 30
+- **Method:** SVI (Switched Virtual Interface) on L3 switch
+- **Subnetting:** /26 per VLAN
+- **Key Command:** `interface vlan [id]` → `ip address`
+- **Result:** ✅ All VLANs communicate through L3 switch
+
+</details>
+
+<details>
+<summary>📦 <b>Lab 07 — Router-on-a-Stick (ROAS)</b></summary>
+
+```
+[PCs] ── Switch (trunk) ── Router (subinterfaces)
+```
+- **VLANs:** 10, 20, 30, 40
+- **Trunk:** 802.1Q between switch and router
+- **Key Command:** `encapsulation dot1q [vlan-id]`
+- **Result:** ✅ All VLANs route through single router interface
+
+</details>
+
+<details>
+<summary>📦 <b>Lab 08 — OSPF + Floating Static Route</b></summary>
+
+```
+PC0 — R0 — R1 — R2 — R3 — PC1
+```
+| Method | Admin Distance | Role |
+|--------|---------------|------|
+| OSPF | 110 | Primary dynamic routing |
+| Floating Static | 200 | Backup (only if OSPF fails) |
+
+- **Key Command:** `router ospf 1` → `network [ip] [wildcard] area 0`
+- **Result:** ✅ OSPF routes traffic, static kicks in on failure
+
+</details>
+
+<details>
+<summary>📦 <b>Lab 09 — EIGRP Partial Mesh ⭐ LATEST</b></summary>
+
+```
+        [Router0]
+       /          \
+  Gig0/1          Gig0/0
+10.0.12.0/30   10.0.13.0/30
+     |                |
+[Router1]         [Router2]
+     \                /
+   10.0.24.0/30  10.0.34.0/30
+          \      /
           [Router3]
               |
-          [Switch0]
+           [Switch]
               |
-            [PC0]
-        192.168.1.0/24
+            [PC0]  192.168.1.0/24
 ```
 
----
+**IP Addressing & Wildcard Masks:**
 
-## 🔧 Lab 9 IP Addressing Plan
+| Link | Network | Subnet Mask | Wildcard Mask |
+|------|---------|-------------|---------------|
+| R0 ↔ R1 | 10.0.12.0/30 | 255.255.255.252 | **0.0.0.3** |
+| R0 ↔ R2 | 10.0.13.0/30 | 255.255.255.252 | **0.0.0.3** |
+| R1 ↔ R3 | 10.0.24.0/30 | 255.255.255.252 | **0.0.0.3** |
+| R2 ↔ R3 | 10.0.34.0/30 | 255.255.255.252 | **0.0.0.3** |
+| R3 LAN | 192.168.1.0/24 | 255.255.255.0 | **0.0.0.255** |
 
-| Link | Network | Wildcard Mask | Subnet Mask |
-|------|---------|---------------|-------------|
-| Router0 ↔ Router1 | 10.0.12.0/30 | 0.0.0.3 | 255.255.255.252 |
-| Router0 ↔ Router2 | 10.0.13.0/30 | 0.0.0.3 | 255.255.255.252 |
-| Router1 ↔ Router3 | 10.0.24.0/30 | 0.0.0.3 | 255.255.255.252 |
-| Router2 ↔ Router3 | 10.0.34.0/30 | 0.0.0.3 | 255.255.255.252 |
-| Router3 LAN (PC0) | 192.168.1.0/24 | 0.0.0.255 | 255.255.255.0 |
+> 💡 **Formula:** Wildcard = `255.255.255.255` − Subnet Mask
 
-> 💡 **Wildcard Mask = 255.255.255.255 minus Subnet Mask**
-> Example: 255.255.255.255 - 255.255.255.252 = **0.0.0.3**
-
----
-
-## 🔧 Lab 9 EIGRP Configuration
-
-### All Routers — EIGRP Setup
+**EIGRP Config (all routers):**
 ```bash
 router eigrp 1
-network 10.0.12.0 0.0.0.3     ! Router0-Router1 link
-network 10.0.13.0 0.0.0.3     ! Router0-Router2 link
-network 10.0.24.0 0.0.0.3     ! Router1-Router3 link
-network 10.0.34.0 0.0.0.3     ! Router2-Router3 link
-network 192.168.1.0 0.0.0.255 ! Router3 LAN
-no auto-summary
+ network 10.0.12.0 0.0.0.3
+ network 10.0.13.0 0.0.0.3
+ network 10.0.24.0 0.0.0.3
+ network 10.0.34.0 0.0.0.3
+ network 192.168.1.0 0.0.0.255
+ no auto-summary
 ```
 
----
-
-## 🧪 Lab 9 Verification — Router0 Output
-
-### EIGRP Neighbor Table
+**Verification Output:**
 ```
-Router# show ip eigrp neighbors
+Router0# show ip eigrp neighbors
+H   Address      Interface   Hold  Uptime    SRTT  RTO
+0   10.0.12.2    Gig0/1      12    00:17:25  40    1000
+1   10.0.13.2    Gig0/0      12    00:15:14  40    1000
 
-H   Address      Interface   Hold  Uptime    SRTT  RTO   Q Cnt  Seq Num
-0   10.0.12.2    Gig0/1      12    00:17:25  40    1000  0      9
-1   10.0.13.2    Gig0/0      12    00:15:14  40    1000  0      13
-```
-
-### EIGRP Routes Learned
-```
-Router# show ip route eigrp
-
+Router0# show ip route eigrp
 D  10.0.24.0/30 [90/3072] via 10.0.12.2, GigabitEthernet0/1
 D  10.0.34.0/30 [90/3072] via 10.0.13.2, GigabitEthernet0/0
 ```
-> **D** = EIGRP route | **[90/3072]** = Admin Distance / Metric
+- **Result:** ✅ EIGRP neighbors formed, routes learned, ping successful
+
+</details>
 
 ---
 
 ## 📊 Routing Protocol Comparison
 
+<div align="center">
+
 | Feature | Static | OSPF | EIGRP | Floating Static |
-|---------|--------|------|-------|-----------------|
-| Type | Manual | Dynamic (Link-State) | Dynamic (Hybrid) | Manual (Backup) |
-| Admin Distance | 1 | 110 | 90 | 200 (custom) |
+|:-------:|:------:|:----:|:-----:|:---------------:|
+| Type | Manual | Link-State | Hybrid | Manual Backup |
+| Admin Distance | 1 | 110 | **90** | 200 |
 | Auto-update | ❌ | ✅ | ✅ | ❌ |
-| Convergence | N/A | Medium | Fast | N/A |
-| Best for | Small networks | Enterprise | Cisco networks | Redundancy |
-| Wildcard Mask | ❌ Not used | ✅ Required | ✅ Required | ❌ Not used |
+| Convergence | N/A | Medium | ⚡ Fast | N/A |
+| Wildcard Mask | ❌ | ✅ | ✅ | ❌ |
+| Cisco Only | ❌ | ❌ | ✅ | ❌ |
+
+</div>
 
 ---
 
-## 📊 ROAS vs Layer 3 Switch
+## 🛠️ Requirements & Setup
 
-| Feature | ROAS | Layer 3 Switch |
-|---------|------|----------------|
-| Device | Router | Multilayer Switch |
-| Interface | Subinterfaces | SVIs |
-| Speed | Slower (software) | Faster (hardware) |
-| Cost | Lower | Higher |
-| Best for | Small networks | Enterprise networks |
+```bash
+# Software Required
+Cisco Packet Tracer 8.0 or higher
+
+# How to Use
+1. Clone this repository
+   git clone https://github.com/hamzamalik97/-Best-for-cisco-packet-tracer-lab.git
+
+2. Open any .pkt file in Packet Tracer
+
+3. Explore CLI configurations on each device
+
+4. Run verification commands to understand the topology
+```
+
+---
+
+## 🧪 Quick Command Reference
+
+```bash
+# Routing
+show ip route                   # Full routing table
+show ip route eigrp             # EIGRP routes only
+show ip route ospf              # OSPF routes only
+show ip ospf neighbor           # OSPF neighbor adjacency
+show ip eigrp neighbors         # EIGRP neighbor adjacency
+
+# Interfaces
+show ip interface brief         # All interfaces + status
+show interfaces [int]           # Detailed interface info
+
+# VLANs & Switching
+show vlan brief                 # VLAN database
+show interfaces trunk           # Trunk ports
+show spanning-tree              # STP topology
+
+# Troubleshooting
+ping [destination-ip]           # Test connectivity
+traceroute [destination-ip]     # Trace path
+```
 
 ---
 
 ## 📈 Learning Path
 
 ```
-1. ARP/ICMP           →  Basic connectivity & troubleshooting
-2. Static Routing     →  Router fundamentals & manual routes
-3. VLANs + Trunk      →  Network segmentation
-4. STP/RSTP           →  Loop prevention & redundancy
-5. Inter-VLAN (L3)    →  Layer 3 switch with SVI
-6. Inter-VLAN (ROAS)  →  Router-on-a-Stick with 802.1Q
-7. OSPF + Floating    →  Dynamic routing + backup routes
-8. EIGRP              →  Hybrid routing + wildcard masks  ← YOU ARE HERE
+┌─────────────────────────────────────────────────────┐
+│                  CCNA LEARNING JOURNEY               │
+├─────────────────────────────────────────────────────┤
+│  ✅  Lab 1  →  ARP & ICMP (Layer 2/3 basics)        │
+│  ✅  Lab 2  →  Static Routing (manual routes)        │
+│  ✅  Lab 3  →  VLANs & Trunking (segmentation)      │
+│  ✅  Lab 4  →  STP & BPDU Guard (loop prevention)   │
+│  ✅  Lab 5  →  RSTP (faster STP)                    │
+│  ✅  Lab 6  →  Inter-VLAN L3 Switch (SVI)           │
+│  ✅  Lab 7  →  Router-on-a-Stick (ROAS)             │
+│  ✅  Lab 8  →  OSPF + Floating Static               │
+│  🔄  Lab 9  →  EIGRP Partial Mesh  ◄ YOU ARE HERE   │
+│  ⏳  Next   →  ACLs, NAT, DHCP, WAN                 │
+└─────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛠 Requirements
+<div align="center">
 
-- Cisco Packet Tracer **8.0 or higher**
+### ⭐ If this repo helped you, please give it a star!
 
----
+[![LinkedIn](https://img.shields.io/badge/Connect%20on-LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/hamza-malik-791ba8301/)
+[![GitHub](https://img.shields.io/badge/Follow%20on-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/hamzamalik97)
 
-## 📖 How to Use
+**Happy Networking! 🚀**
 
-1. Clone or download this repository
-2. Open any `.pkt` file in Cisco Packet Tracer
-3. Explore configurations using the CLI
-4. Use verification commands to confirm routing
+*"The network is the computer." — John Gage, Sun Microsystems*
 
----
-
-## 🧪 Key Verification Commands
-
-```bash
-show ip route                  # Full routing table
-show ip route eigrp            # EIGRP routes only
-show ip eigrp neighbors        # Verify EIGRP neighbor adjacency
-show ip interface brief        # Check interface status
-ping 192.168.1.x               # Test end-to-end connectivity
-```
-
----
-
-## 👤 About
-
-> 🎓 Currently preparing for **Cisco CCNA 200-301**
-> 💡 Documenting every lab to solidify understanding and help others
-> 🔗 Connect with me on [LinkedIn](https://www.linkedin.com/in/hamza-malik-791ba8301/)
-
----
-
-**Happy Networking!** 🚀
+</div>

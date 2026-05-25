@@ -1,12 +1,16 @@
 # 🖧 Cisco Packet Tracer Lab Repository
 
 > 📚 A structured, hands-on collection of Cisco networking labs — built while preparing for **CCNA (200-301)**
-> From basic ARP/ICMP to advanced multi-router OSPF with Serial WAN links, mixed hardware & ISP connectivity.
+> From basic ARP/ICMP to advanced OSPF + HSRP redundancy with multi-switch mesh topologies.
 
-![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-blue?style=for-the-badge&logo=cisco)
-![CCNA](https://img.shields.io/badge/Certification-CCNA%20200--301-green?style=for-the-badge)
-![Labs](https://img.shields.io/badge/Labs-12%20and%20Growing-orange?style=for-the-badge)
+<div align="center">
+
+![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
+![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
+![Labs](https://img.shields.io/badge/Total%20Labs-13-FF6B35?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
+
+</div>
 
 ---
 
@@ -26,8 +30,9 @@
 | `08` | `static.floating.routing.pkt` | OSPF + Floating Static Backup | OSPF, Static, Floating Route | 4x Routers, 2x PC |
 | `09` | `eigrp-partial-mesh-lab.pkt` | EIGRP Partial Mesh | EIGRP, Wildcard Mask, /30 | 4x Routers, Switch, PC |
 | `10` | `ospf-advanced-loopback-lab.pkt` | Advanced OSPF — Loopback · Passive · Type-5 LSA | OSPF, Loopback, Passive Interface | 5x Routers, Switch, PC |
-| `11` | `ospf-dual-router-isp-lab.pkt` | OSPF Dual Router + ISP Link — Cisco 2911 & CGR1240 | OSPF, Loopback, Default Route, ISP | Cisco 2911, CGR1240 |
-| `12` | `ospf3.pkt` | OSPF Multi-Router Serial WAN + Mixed Hardware ⭐ | OSPF, Serial Links, Wildcard Mask, ISP | 2911, 3x CGR1240, Switch, 2x PC |
+| `11` | `ospf-dual-router-isp-lab.pkt` | OSPF Dual Router + ISP Link | OSPF, Loopback, Default Route | Cisco 2911, CGR1240 |
+| `12` | `ospf-multirouter-serial-wan.pkt` | OSPF Multi-Router Serial WAN | OSPF, Serial Links, /29 Wildcard | 2911, 3x CGR1240, 2x PC |
+| `13` | `ospf-HSRP.pkt` | OSPF + HSRP Gateway Redundancy ⭐ | OSPF, HSRP, Virtual IP, Mesh Switches | 3x ISR4331, 4x Switch, 2x PC |
 
 </div>
 
@@ -36,148 +41,159 @@
 ## 🎯 Lab Highlights
 
 <details>
-<summary>📦 <b>Lab 12 — OSPF Multi-Router Serial WAN + Mixed Hardware ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 13 — OSPF + HSRP Gateway Redundancy ⭐ LATEST</b></summary>
 
 ### 🗺️ Topology
 
 ```
-[PC0]─Fa0─[Switch0]─[Router0(2911)]═══Serial WAN═══[Router1(2901)]─[Router4(CGR1240)]───[Router5(CGR1240)]
-           10.0.1.0/24   Gig0/1  Se0/3/0  1192.168.12.0/30  Se0/3/0  Gig0/0  Gig2/2  203.0.113.0/30  Gig2/2
-                                                                          |
-                                                                       Fa0/1
-                                                                          |
-                                                                      [Switch2]  192.168.245.0/29
-                                                                          |
-                                                                       Gig0/1
-                                                                          |
-                                                              [Router3(CGR1240)]─Gig2/1─[Router2(CGR1240)]
-                                                                   Gig2/2               Gig2/2  Gig0/1
-                                                              192.168.34.0/30            10.0.2.0/24
-                                                                                            |
-                                                                                        [Switch1]
-                                                                                            |
-                                                                                          [PC1]
+        [PC0]                    [PC1]
+          |                        |
+       Fa0/1                    Fa0/1
+      Switch0 ─────────────── Switch1
+      Gig0/1  Gig0/2      Gig0/2  Gig0/1
+        |                            |
+        |                            |
+      Gig0/1                      Fa0/1
+      Switch2 ─────────────── Switch3
+      Fa0/1   Gig0/2      Fa0/2   Gig0/2
+        |                            |
+      Fa0/2                       Gig0/1
+        |                            |
+   Gig0/0/0                     Gig0/0/0
+   Router0(ISR4331)          Router3(ISR4331)
+   HSRP Active                HSRP Standby
+   192.168.1.1                192.168.1.5
+        |                            |
+   Gig0/0/1                     Gig0/0/1
+   10.0.2.0/30                10.0.3.0/30
+        \                           /
+         \                         /
+          ──── Router2(ISR4331) ───
+                  (WAN Hub)
 ```
+
+**HSRP Virtual IP: `192.168.1.254`** ← PCs use this as their default gateway
 
 ---
 
 ### 🔢 IP Addressing & Wildcard Masks
 
-| Link / Network | Subnet | Mask | Wildcard | Connected Devices |
-|----------------|--------|------|----------|-------------------|
-| PC0 LAN | 10.0.1.0/24 | 255.255.255.0 | **0.0.0.255** | PC0, Switch0, Router0 Fa0/1 |
-| Router0 ↔ Router1 (Serial WAN) | 1192.168.12.0/30 | 255.255.255.252 | **0.0.0.3** | Router0 Se0/3/0 ↔ Router1 Se0/3/0 |
-| Router1 ↔ Router4 | 203.0.113.0/30 | 255.255.255.252 | **0.0.0.3** | Router1 Gig0/0 ↔ Router4 Gig2/2 |
-| Router4 ↔ Router5 (ISP) | 203.0.113.0/30 | 255.255.255.252 | **0.0.0.3** | Router4 Gig2/2 ↔ Router5 Gig2/2 |
-| Router1/Router4 shared LAN | 192.168.245.0/29 | 255.255.255.248 | **0.0.0.7** | Switch2, Router1 Fa0/1, Router4 Gig2/1 |
-| Router2 ↔ Router3 | 192.168.34.0/30 | 255.255.255.252 | **0.0.0.3** | Router2 Gig2/1 ↔ Router3 Gig2/2 |
-| PC1 LAN | 10.0.2.0/24 | 255.255.255.0 | **0.0.0.255** | PC1, Switch1, Router2 Gig0/1 |
+| Interface / Link | IP Address | Subnet | Wildcard Mask |
+|-----------------|-----------|--------|---------------|
+| Router0 Gig0/0/0 (LAN) | 192.168.1.1/24 | /24 | **0.0.0.255** |
+| Router3 Gig0/0/0 (LAN) | 192.168.1.5/24 | /24 | **0.0.0.255** |
+| HSRP Virtual IP | 192.168.1.254/24 | /24 | **0.0.0.255** |
+| Router0 ↔ Router2 | 10.0.2.0/30 | /30 | **0.0.0.3** |
+| Router3 ↔ Router2 | 10.0.3.0/30 | /30 | **0.0.0.3** |
+| PC0 / PC1 LAN | 192.168.1.0/24 | /24 | **0.0.0.255** |
 
 > 💡 **Wildcard Formula:** `255.255.255.255 − Subnet Mask`
-> /29 → `255.255.255.255 − 255.255.255.248` = **0.0.0.7** (8 hosts)
-> /30 → `255.255.255.255 − 255.255.255.252` = **0.0.0.3** (4 hosts)
-> /24 → `255.255.255.255 − 255.255.255.0`   = **0.0.0.255** (256 hosts)
 
 ---
 
-### 📡 Device Summary
+### 🔁 HSRP — What & Why
 
-| Device | Model | Role | Key Interfaces |
-|--------|-------|------|----------------|
-| Router0 | Cisco 2911 | WAN Edge | Gig0/1 (LAN), Se0/3/0 (WAN) |
-| Router1 | Cisco 2901 | WAN Hub | Se0/3/0 (WAN), Gig0/0, Fa0/1 |
-| Router2 | Cisco CGR1240 | LAN Gateway | Gig0/1 (PC1 LAN), Gig2/1 |
-| Router3 | Cisco CGR1240 | Transit | Gig2/2 (R2), Gig0/1 (Switch2) |
-| Router4 | Cisco CGR1240 | ISP Edge | Gig2/1 (Switch2), Gig2/2 (R5) |
-| Router5 | Cisco CGR1240 | ISP Simulator | Gig2/2 (R4) |
+| Feature | Explanation |
+|---------|-------------|
+| **Virtual IP** | `192.168.1.254` — PCs use this as gateway, never changes |
+| **Active Router** | Router0 — forwards all traffic normally |
+| **Standby Router** | Router3 — monitors Active, takes over if it fails |
+| **Failover** | If Router0 goes down, Router3 becomes Active in seconds |
+| **Transparent to PCs** | PCs never need to change their default gateway |
+| **Protocol** | Cisco proprietary (CCNA exam topic) |
 
 ---
 
-### ⚙️ OSPF Configuration
+### ⚙️ Configuration
 
-#### Router0 (Cisco 2911)
+#### Router0 — HSRP Active + OSPF
 ```bash
 conf t
+interface GigabitEthernet0/0/0
+ ip address 192.168.1.1 255.255.255.0
+ ! HSRP Configuration
+ standby 1 ip 192.168.1.254       ! Virtual IP — shared gateway for PCs
+ standby 1 priority 110           ! Higher priority = Active router
+ standby 1 preempt                ! Reclaim Active role after recovery
+ no shutdown
+
+interface GigabitEthernet0/0/1
+ ip address 10.0.2.1 255.255.255.252
+ no shutdown
+
 router ospf 1
- network 10.0.1.0 0.0.0.255 area 0       ! PC0 LAN
- network 1192.168.12.0 0.0.0.3 area 0    ! Serial WAN to Router1
+ network 192.168.1.0 0.0.0.255 area 0
+ network 10.0.2.0 0.0.0.3 area 0
 end
 wr
 ```
 
-#### Router1 (Cisco 2901)
+#### Router3 — HSRP Standby + OSPF
 ```bash
 conf t
+interface GigabitEthernet0/0/0
+ ip address 192.168.1.5 255.255.255.0
+ ! HSRP Configuration
+ standby 1 ip 192.168.1.254       ! Same Virtual IP as Router0
+ standby 1 priority 90            ! Lower priority = Standby router
+ standby 1 preempt
+ no shutdown
+
+interface GigabitEthernet0/0/1
+ ip address 10.0.3.1 255.255.255.252
+ no shutdown
+
 router ospf 1
- network 1192.168.12.0 0.0.0.3 area 0    ! Serial WAN to Router0
- network 192.168.245.0 0.0.0.7 area 0    ! Shared LAN with Router4
- network 203.0.113.0 0.0.0.3 area 0      ! Link to Router4
+ network 192.168.1.0 0.0.0.255 area 0
+ network 10.0.3.0 0.0.0.3 area 0
 end
 wr
 ```
 
-#### Router2 (CGR1240)
-```bash
-conf t
-router ospf 1
- network 10.0.2.0 0.0.0.255 area 0       ! PC1 LAN
- network 192.168.34.0 0.0.0.3 area 0     ! Link to Router3
-end
-wr
+#### PC Default Gateway
 ```
-
-#### Router3 (CGR1240)
-```bash
-conf t
-router ospf 1
- network 192.168.34.0 0.0.0.3 area 0     ! Link to Router2
- network 192.168.245.0 0.0.0.7 area 0    ! Shared LAN (Switch2)
-end
-wr
-```
-
-#### Router4 (CGR1240)
-```bash
-conf t
-router ospf 1
- network 192.168.245.0 0.0.0.7 area 0    ! Shared LAN (Switch2)
- network 203.0.113.0 0.0.0.3 area 0      ! ISP link to Router5
- default-information originate            ! Advertise default route
-end
-wr
+PC0 Default Gateway: 192.168.1.254  ← HSRP Virtual IP
+PC1 Default Gateway: 192.168.1.254  ← HSRP Virtual IP
 ```
 
 ---
 
-### 🧪 Verification
+### 🧪 Verification Commands & Results
 
 ```bash
-show ip ospf neighbor          ! Verify FULL adjacency on all routers
-show ip route ospf             ! Confirm all OSPF routes learned
-show ip route                  ! Full routing table
-ping 10.0.1.2                  ! PC1 pings PC0 → Success ✅
-ping 10.0.2.2                  ! PC0 pings PC1 → Success ✅
+! Verify HSRP status
+Router0# show standby brief
+Interface  Grp  Pri  P  State   Active        Standby       VirtualIP
+Gi0/0/0    1    110  P  Active  local         192.168.1.5   192.168.1.254
+
+Router3# show standby brief
+Interface  Grp  Pri  P  State    Active        Standby  VirtualIP
+Gi0/0/0    1    90   P  Standby  192.168.1.1   local    192.168.1.254
+
+! Verify OSPF neighbors
+Router0# show ip ospf neighbor
+Neighbor ID   State   Interface
+[Router2 ID]  FULL    GigabitEthernet0/0/1
 ```
 
 ### PDU Simulation Results
 | Source | Destination | Type | Status |
 |--------|-------------|------|--------|
-| PC1 | PC0 | ICMP | ✅ Successful |
-| PC1 | Router4 | ICMP | ✅ Successful |
-| PC1 | PC0 | ICMP | ✅ Successful |
+| PC0 | Router2 | ICMP | ✅ Successful |
+| PC1 | Router2 | ICMP | ✅ Successful |
+| PC1 | Router2 | ICMP | ✅ Successful |
 
 ---
 
-### 💡 Key Concepts in This Lab
+### 📊 HSRP vs Other FHRP Protocols
 
-| Concept | Explanation |
-|---------|-------------|
-| **Serial WAN Link** | Router0 ↔ Router1 use Se0/3/0 — simulates a real ISP WAN connection |
-| **Mixed Hardware** | Cisco 2911, 2901, and CGR1240 routers in same OSPF domain |
-| **Shared Segment /29** | Switch2 connects Router1, Router3, Router4 — multi-access OSPF segment |
-| **OSPF Cost** | Serial links have higher cost than Gigabit — OSPF prefers faster paths |
-| **Dynamic Failover** | If Serial WAN fails, OSPF recalculates path automatically |
-| **Wildcard /29** | `0.0.0.7` — less common, important for CCNA exam |
+| Feature | HSRP | VRRP | GLBP |
+|---------|------|------|------|
+| Vendor | Cisco only | Open standard | Cisco only |
+| Virtual IP | Separate from real IPs | Can use router's IP | Separate |
+| Load Balancing | ❌ Active/Standby only | ❌ | ✅ Yes |
+| Preempt | Manual config | Auto | Auto |
+| CCNA Exam | ✅ Yes | ✅ Yes | ✅ Yes |
 
 </details>
 
@@ -193,8 +209,7 @@ ping 10.0.2.2                  ! PC0 pings PC1 → Success ✅
 | Admin Distance | 1 | 110 | 90 | 200 |
 | Auto-update | ❌ | ✅ | ✅ | ❌ |
 | Wildcard Mask | ❌ | ✅ | ✅ | ❌ |
-| Serial WAN Support | ✅ | ✅ | ✅ | ✅ |
-| Auto Failover | ❌ | ✅ | ✅ | ❌ |
+| Works with HSRP | ✅ | ✅ | ✅ | ✅ |
 
 </div>
 
@@ -216,8 +231,9 @@ ping 10.0.2.2                  ! PC0 pings PC1 → Success ✅
 │  ✅  Lab 08  →  OSPF + Floating Static                                │
 │  ✅  Lab 09  →  EIGRP Partial Mesh + Wildcard Masks                   │
 │  ✅  Lab 10  →  Advanced OSPF: Loopback · Passive · LSA Type-5        │
-│  ✅  Lab 11  →  OSPF Dual Router + ISP Link (Cisco 2911 + CGR1240)    │
-│  🔄  Lab 12  →  OSPF Multi-Router Serial WAN + Mixed Hardware ◄ HERE  │
+│  ✅  Lab 11  →  OSPF Dual Router + ISP Link                           │
+│  ✅  Lab 12  →  OSPF Multi-Router Serial WAN                          │
+│  🔄  Lab 13  →  OSPF + HSRP Gateway Redundancy  ◄ YOU ARE HERE       │
 │  ⏳  Next    →  ACLs · NAT/PAT · DHCP · WAN                           │
 └──────────────────────────────────────────────────────────────────────┘
 ```
@@ -227,12 +243,17 @@ ping 10.0.2.2                  ! PC0 pings PC1 → Success ✅
 ## 🧪 Master Verification Commands
 
 ```bash
+# HSRP
+show standby brief               # HSRP Active/Standby state + Virtual IP
+show standby                     # Full HSRP details
+
+# OSPF
 show ip ospf neighbor            # Neighbor adjacency & FULL state
 show ip route ospf               # OSPF-learned routes only
-show ip ospf database            # Full LSDB — all LSA types
-show ip ospf interface brief     # OSPF-enabled interfaces
-show ip protocols                # OSPF process details & Router ID
-clear ip ospf process            # Reset OSPF (after router-id change)
+show ip ospf database            # Full LSDB
+show ip protocols                # OSPF process & Router ID
+
+# General
 show ip route                    # Full routing table
 show ip interface brief          # All interfaces + status
 ping [ip]                        # Test reachability

@@ -1,16 +1,30 @@
 # 🖧 Cisco Packet Tracer Lab Repository
 
-> 📚 A structured, hands-on collection of Cisco networking labs — built while preparing for **CCNA (200-301)**
-> From basic ARP/ICMP to advanced OSPF + HSRP redundancy with multi-switch mesh topologies.
+> 📚 A structured, hands-on collection of Cisco networking labs and protocol deep-dives — built while preparing for **CCNA (200-301)**
+> From basic ARP/ICMP to advanced OSPF + HSRP redundancy, plus written Transport Layer analysis with packet-level breakdowns.
 
 <div align="center">
 
 ![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
 ![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
 ![Labs](https://img.shields.io/badge/Total%20Labs-13-FF6B35?style=for-the-badge)
+![Docs](https://img.shields.io/badge/Protocol%20Docs-1-7C3AED?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
 
 </div>
+
+---
+
+## 🧭 Quick Navigation
+
+- [All Labs](#-all-labs)
+- [Documentation & Protocol Deep-Dives](#-documentation--protocol-deep-dives)
+- [Lab Highlights](#-lab-highlights)
+- [Routing Protocol Comparison](#-routing-protocol-comparison)
+- [Learning Path](#-learning-path)
+- [Master Verification Commands](#-master-verification-commands)
+
+> 💡 On mobile, tables and code blocks scroll horizontally — swipe sideways if a row looks cut off.
 
 ---
 
@@ -38,10 +52,131 @@
 
 ---
 
+## 📘 Documentation & Protocol Deep-Dives
+
+> Written analysis and packet-level study to complement the hands-on labs above.
+
+<div align="center">
+
+| # | 🗂️ File | 📋 Topic | 🔧 Focus |
+|:---:|--------|----------|----------|
+| `D1` | `Transport_Layer_Documentation.pdf` | Transport Layer Analysis: TCP vs. UDP Deep Dive | 3-Way Handshake, Flow Control, Port Multiplexing, Wireshark Trace Analysis |
+
+</div>
+
+<details>
+<summary>📦 <b>Doc 1 — Transport Layer Analysis: TCP vs. UDP Deep Dive ⭐ LATEST</b></summary>
+
+### 🎯 Key Focus Areas
+
+| Area | What's Covered |
+|------|-----------------|
+| **Session Multiplexing** | Port allocation structures — Well-Known, Registered, and Ephemeral ranges |
+| **TCP State Transitions** | 3-Way Handshake (`SYN` → `SYN-ACK` → `ACK`) and teardown (`FIN` sequences) with correlated Seq/Ack numbers |
+| **Flow Control** | Dynamic window sizing to protect receiver buffer space |
+| **Application Mapping** | Cross-reference table mapping enterprise services to their Layer 4 transport and port |
+
+📥 [Download full PDF Documentation](./Transport_Layer_Documentation.pdf)
+
+---
+
+### 🔢 Port Allocation Ranges
+
+| Range | Span | Purpose |
+|-------|------|---------|
+| **Well-Known** | 0 – 1023 | Reserved for standard services (HTTP, SSH, DNS, etc.) |
+| **Registered** | 1024 – 49151 | Assigned to vendor/user applications |
+| **Ephemeral** | 49152 – 65535 | Temporary client-side ports for outbound sessions |
+
+---
+
+### ⚖️ TCP vs. UDP — Core Comparison
+
+| Feature | TCP | UDP |
+|---------|-----|-----|
+| Connection Type | Connection-oriented | Connectionless |
+| Reliability | Guaranteed (ACKs, retransmission) | Best-effort |
+| Ordering | In-order delivery | No guarantee |
+| Handshake | 3-Way (SYN, SYN-ACK, ACK) | None |
+| Flow Control | Yes (window sizing) | No |
+| Header Overhead | 20 bytes | 8 bytes |
+| Typical Use | HTTP/S, SSH, FTP, Email | DNS, DHCP, Streaming, VoIP, SNMP |
+
+---
+
+### 🛠️ Analyzed Protocols & Port Metrics
+
+| Transport | Service | Port(s) |
+|-----------|---------|---------|
+| **TCP** | HTTP | 80 |
+| **TCP** | HTTPS | 443 |
+| **TCP** | SSH | 22 |
+| **TCP** | SMTP | 25 |
+| **TCP** | FTP | 20 / 21 |
+| **UDP** | DHCP | 67 / 68 |
+| **UDP** | TFTP | 69 |
+| **UDP** | Syslog | 514 |
+| **UDP** | SNMP | 161 / 162 |
+| **Dual-Mode** | DNS | 53 |
+
+---
+
+### 🔁 TCP Connection Lifecycle
+
+**3-Way Handshake (Establishment)**
+```
+Client                          Server
+  |------ SYN (Seq=10) -------->|
+  |<-- SYN-ACK (Seq=50,Ack=11)--|
+  |------ ACK (Ack=51) -------->|
+        Connection Established
+```
+
+**4-Way Teardown (Termination)**
+```
+Client                          Server
+  |------ FIN ------------------>|
+  |<----- ACK ---------------------|
+  |<----- FIN ----------------------|
+  |------ ACK ------------------>|
+        Connection Closed
+```
+
+---
+
+### 🔍 Sample Wireshark Trace Breakdown
+
+```text
+No.  Source          Destination     Protocol  Info
+1    192.168.1.50    10.0.0.80       TCP       500 → 80 [SYN] Seq=10 Win=64240 Len=0
+2    10.0.0.80       192.168.1.50    TCP       80 → 500 [SYN, ACK] Seq=50 Ack=11 Win=65535 Len=0
+3    192.168.1.50    10.0.0.80       TCP       500 → 80 [ACK] Seq=11 Ack=51 Win=64240 Len=0
+```
+
+**Reading the trace:**
+- Packet 1 — Client (port 500) initiates with `SYN`, Seq=10
+- Packet 2 — Server responds `SYN-ACK`, Ack=11 (Seq+1), starts its own Seq=50
+- Packet 3 — Client completes handshake with `ACK`, Ack=51 → session open for data transfer
+
+---
+
+### 📊 Flow Control — Window Sizing
+
+| Concept | Explanation |
+|---------|-------------|
+| **Receive Window (Win)** | Advertised buffer space on the receiving host |
+| **Dynamic Adjustment** | Window shrinks/grows based on receiver processing speed |
+| **Zero Window** | Buffer full — sender pauses until window reopens |
+| **Why It Matters** | Prevents buffer overflow and unnecessary retransmissions |
+
+</details>
+
+---
+
 ## 🎯 Lab Highlights
 
 <details>
-<summary>📦 <b>Lab 13 — OSPF + HSRP Gateway Redundancy ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 13 — OSPF + HSRP Gateway Redundancy</b></summary>
 
 ### 🗺️ Topology
 
@@ -233,7 +368,8 @@ Neighbor ID   State   Interface
 │  ✅  Lab 10  →  Advanced OSPF: Loopback · Passive · LSA Type-5        │
 │  ✅  Lab 11  →  OSPF Dual Router + ISP Link                           │
 │  ✅  Lab 12  →  OSPF Multi-Router Serial WAN                          │
-│  🔄  Lab 13  →  OSPF + HSRP Gateway Redundancy  ◄ YOU ARE HERE       │
+│  ✅  Lab 13  →  OSPF + HSRP Gateway Redundancy                        │
+│  ✅  Doc 01  →  Transport Layer: TCP vs UDP Deep Dive  ◄ YOU ARE HERE │
 │  ⏳  Next    →  ACLs · NAT/PAT · DHCP · WAN                           │
 └──────────────────────────────────────────────────────────────────────┘
 ```
@@ -265,6 +401,7 @@ traceroute [ip]                  # Trace path hop by hop
 ## 🛠️ Requirements
 
 - Cisco Packet Tracer **8.0 or higher**
+- Wireshark (for verifying TCP/UDP packet-level concepts)
 
 ---
 

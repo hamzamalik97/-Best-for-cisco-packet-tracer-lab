@@ -7,8 +7,7 @@
 
 ![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
 ![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
-![Labs](https://img.shields.io/badge/Total%20Labs-13-FF6B35?style=for-the-badge)
-![Docs](https://img.shields.io/badge/Protocol%20Docs-1-7C3AED?style=for-the-badge)
+![Labs](https://img.shields.io/badge/Total%20Labs-14-FF6B35?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
 
 </div>
@@ -18,7 +17,6 @@
 ## 🧭 Quick Navigation
 
 - [All Labs](#-all-labs)
-- [Documentation & Protocol Deep-Dives](#-documentation--protocol-deep-dives)
 - [Lab Highlights](#-lab-highlights)
 - [Routing Protocol Comparison](#-routing-protocol-comparison)
 - [Learning Path](#-learning-path)
@@ -47,25 +45,16 @@
 | `11` | `ospf-dual-router-isp-lab.pkt` | OSPF Dual Router + ISP Link | OSPF, Loopback, Default Route | Cisco 2911, CGR1240 |
 | `12` | `ospf-multirouter-serial-wan.pkt` | OSPF Multi-Router Serial WAN | OSPF, Serial Links, /29 Wildcard | 2911, 3x CGR1240, 2x PC |
 | `13` | `ospf-HSRP.pkt` | OSPF + HSRP Gateway Redundancy ⭐ | OSPF, HSRP, Virtual IP, Mesh Switches | 3x ISR4331, 4x Switch, 2x PC |
+| `14` | `Transport_Layer_Documentation.pdf` | Transport Layer Analysis: TCP vs. UDP Deep Dive ⭐ | TCP/UDP, 3-Way Handshake, Flow Control, Wireshark Trace | Written Protocol Analysis |
 
 </div>
 
 ---
 
-## 📘 Documentation & Protocol Deep-Dives
-
-> Written analysis and packet-level study to complement the hands-on labs above.
-
-<div align="center">
-
-| # | 🗂️ File | 📋 Topic | 🔧 Focus |
-|:---:|--------|----------|----------|
-| `D1` | `Transport_Layer_Documentation.pdf` | Transport Layer Analysis: TCP vs. UDP Deep Dive | 3-Way Handshake, Flow Control, Port Multiplexing, Wireshark Trace Analysis |
-
-</div>
+## 🎯 Lab Highlights
 
 <details>
-<summary>📦 <b>Doc 1 — Transport Layer Analysis: TCP vs. UDP Deep Dive ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 14 — Transport Layer Analysis: TCP vs. UDP Deep Dive ⭐ LATEST</b></summary>
 
 ### 🎯 Key Focus Areas
 
@@ -172,8 +161,6 @@ No.  Source          Destination     Protocol  Info
 </details>
 
 ---
-
-## 🎯 Lab Highlights
 
 <details>
 <summary>📦 <b>Lab 13 — OSPF + HSRP Gateway Redundancy</b></summary>
@@ -369,7 +356,7 @@ Neighbor ID   State   Interface
 │  ✅  Lab 11  →  OSPF Dual Router + ISP Link                           │
 │  ✅  Lab 12  →  OSPF Multi-Router Serial WAN                          │
 │  ✅  Lab 13  →  OSPF + HSRP Gateway Redundancy                        │
-│  ✅  Doc 01  →  Transport Layer: TCP vs UDP Deep Dive  ◄ YOU ARE HERE │
+│  ✅  Lab 14  →  Transport Layer: TCP vs UDP Deep Dive  ◄ YOU ARE HERE │
 │  ⏳  Next    →  ACLs · NAT/PAT · DHCP · WAN                           │
 └──────────────────────────────────────────────────────────────────────┘
 ```

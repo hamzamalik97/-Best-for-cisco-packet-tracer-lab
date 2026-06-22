@@ -1,13 +1,13 @@
 # 🖧 Cisco Packet Tracer Lab Repository
 
 > 📚 A structured, hands-on collection of Cisco networking labs and protocol deep-dives — built while preparing for **CCNA (200-301)**
-> From basic ARP/ICMP to advanced OSPF + HSRP redundancy, plus written Transport Layer analysis with packet-level breakdowns.
+> From basic ARP/ICMP to OSPF + HSRP redundancy, Standard ACLs, Transport Layer analysis with packet-level breakdowns.
 
 <div align="center">
 
 ![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
 ![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
-![Labs](https://img.shields.io/badge/Total%20Labs-14-FF6B35?style=for-the-badge)
+![Labs](https://img.shields.io/badge/Total%20Labs-15-FF6B35?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
 
 </div>
@@ -44,8 +44,9 @@
 | `10` | `ospf-advanced-loopback-lab.pkt` | Advanced OSPF — Loopback · Passive · Type-5 LSA | OSPF, Loopback, Passive Interface | 5x Routers, Switch, PC |
 | `11` | `ospf-dual-router-isp-lab.pkt` | OSPF Dual Router + ISP Link | OSPF, Loopback, Default Route | Cisco 2911, CGR1240 |
 | `12` | `ospf-multirouter-serial-wan.pkt` | OSPF Multi-Router Serial WAN | OSPF, Serial Links, /29 Wildcard | 2911, 3x CGR1240, 2x PC |
-| `13` | `ospf-HSRP.pkt` | OSPF + HSRP Gateway Redundancy ⭐ | OSPF, HSRP, Virtual IP, Mesh Switches | 3x ISR4331, 4x Switch, 2x PC |
-| `14` | `Transport_Layer_Documentation.pdf` | Transport Layer Analysis: TCP vs. UDP Deep Dive ⭐ | TCP/UDP, 3-Way Handshake, Flow Control, Wireshark Trace | Written Protocol Analysis |
+| `13` | `ospf-HSRP.pkt` | OSPF + HSRP Gateway Redundancy | OSPF, HSRP, Virtual IP, Mesh Switches | 3x ISR4331, 4x Switch, 2x PC |
+| `14` | `Transport_Layer_Documentation.pdf` | Transport Layer Analysis: TCP vs. UDP Deep Dive | TCP/UDP, 3-Way Handshake, Flow Control, Wireshark Trace | Written Protocol Analysis |
+| `15` | `standard-acl-lab.pkt` | Standard ACLs — Traffic Filtering & Security ⭐ | Standard ACL, Wildcard Mask, `ip access-group` | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
 
 </div>
 
@@ -54,7 +55,7 @@
 ## 🎯 Lab Highlights
 
 <details>
-<summary>📦 <b>Lab 14 — Transport Layer Analysis: TCP vs. UDP Deep Dive ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 14 — Transport Layer Analysis: TCP vs. UDP Deep Dive</b></summary>
 
 ### 🎯 Key Focus Areas
 
@@ -157,6 +158,133 @@ No.  Source          Destination     Protocol  Info
 | **Dynamic Adjustment** | Window shrinks/grows based on receiver processing speed |
 | **Zero Window** | Buffer full — sender pauses until window reopens |
 | **Why It Matters** | Prevents buffer overflow and unnecessary retransmissions |
+
+</details>
+
+---
+
+<details>
+<summary>📦 <b>Lab 15 — Standard ACLs: Traffic Filtering & Security ⭐ LATEST</b></summary>
+
+### 🗺️ Topology
+
+```
+  [PC1 172.16.1.1]  [PC0 172.16.1.2]
+         |                  |
+       Fa0/1             Fa0/2
+          \               /
+           Switch1 (Fa0/1)
+                 |
+           Gig0/0 (172.16.1.3/24)
+              Router1 (2911)
+           Gig0/1 (172.16.2.3/24)
+           Gig0/2 (203.0.113.1/30)  ── WAN ──  Gig0/0 (203.0.113.2/30)
+                                                   Router2 (2911)
+                                               Gig0/1 (192.168.1.1/24)
+                                               Fa0/1  (192.168.2.1/24)
+           Switch0 (Fa0/1)                    Switch2 (Fa0/1)   Switch3 (Fa0/1)
+         Fa0/2    Fa0/3                         Fa0/2               Fa0/2
+          |         |                             |                   |
+  [PC2 172.16.2.1] [PC3 172.16.2.2]    [Server0 192.168.1.100]  [Server1 192.168.2.100]
+```
+
+---
+
+### 📋 Lab Requirements
+
+| # | Requirement | ACL Used | Applied On |
+|---|-------------|----------|------------|
+| 1 | Only PC1 (`172.16.1.1`) and PC0 (`172.16.1.2`) can access `192.168.1.0/24` | ACL 5 | Router2 Gig0/1 `out` |
+| 2 | `172.16.2.0/24` cannot access `192.168.2.0/24` | ACL 10 | Router2 Fa0/1 `out` |
+| 3 | `172.16.1.0/24` cannot access `172.16.2.0/24` | ACL 5 | Router1 Gig0/1 `out` |
+| 4 | `172.16.2.0/24` cannot access `172.16.1.0/24` | ACL 10 | Router1 Gig0/0 `out` |
+
+> 💡 **Standard ACL Rule:** Place standard ACLs as **close to the destination** as possible — they filter by source IP only, so placing them near the source would block traffic to all destinations.
+
+---
+
+### 🔢 IP Addressing Table
+
+| Device | Interface | IP Address | Subnet |
+|--------|-----------|------------|--------|
+| PC1 | Fa0 | 172.16.1.1 | /24 |
+| PC0 | Fa0 | 172.16.1.2 | /24 |
+| PC2 | Fa0 | 172.16.2.1 | /24 |
+| PC3 | Fa0 | 172.16.2.2 | /24 |
+| Server0 | Fa0 | 192.168.1.100 | /24 |
+| Server1 | Fa0 | 192.168.2.100 | /24 |
+| Router1 Gig0/0 | — | 172.16.1.3 | /24 |
+| Router1 Gig0/1 | — | 172.16.2.3 | /24 |
+| Router1 Gig0/2 | — | 203.0.113.1 | /30 |
+| Router2 Gig0/0 | — | 203.0.113.2 | /30 |
+| Router2 Gig0/1 | — | 192.168.1.1 | /24 |
+| Router2 Fa0/1 | — | 192.168.2.1 | /24 |
+
+---
+
+### ⚙️ ACL Configuration
+
+#### Standard ACL 5 — Permit only PC1 & PC0, deny all others
+```bash
+Router(config)#access-list 5 deny host 172.16.1.1
+Router(config)#access-list 5 deny host 172.16.2.1
+Router(config)#access-list 5 permit any
+```
+> Denies PC1 (`172.16.1.1`) and PC2 (`172.16.2.1`) explicitly, permits all other hosts.
+
+#### Standard ACL 10 — Block entire 172.16.2.0/24 subnet
+```bash
+Router(config)#access-list 10 deny 172.16.2.0 0.0.0.255
+Router(config)#access-list 10 permit any
+```
+> Denies all traffic sourced from `172.16.2.0/24`, permits everything else.
+
+#### Applying ACLs to Interfaces
+```bash
+! Block 172.16.2.0/24 from reaching 192.168.2.0/24
+Router(config)#interface GigabitEthernet0/1
+Router(config-if)#ip access-group 10 out
+
+! Apply ACL 5 to restrict access to 192.168.1.0/24
+Router(config)#interface GigabitEthernet0/1
+Router(config-if)#ip access-group 5 out
+```
+
+---
+
+### 🧪 Verification Commands & Output
+
+```bash
+! View all configured ACLs and match counters
+Router# show ip access-lists
+
+Standard IP access list 5
+    10 deny host 172.16.1.1 (1 match(es))
+    20 deny host 172.16.2.1
+    30 permit any (3 match(es))
+
+Standard IP access list 10
+    10 deny 172.16.2.0 0.0.0.255 (1 match(es))
+    20 permit any (1 match(es))
+
+! Verify ACL applied to interface
+Router# show ip interface GigabitEthernet0/1
+  Outgoing access list is 10
+```
+
+> 💡 The `(match(es))` counter increments every time a packet hits that ACE — useful for confirming the ACL is actually being evaluated.
+
+---
+
+### 📊 Standard vs Extended ACL — Key Differences
+
+| Feature | Standard ACL | Extended ACL |
+|---------|-------------|--------------|
+| Filters by | Source IP only | Source IP, Dest IP, Port, Protocol |
+| ACL Number Range | 1 – 99 | 100 – 199 |
+| Placement Rule | Close to **destination** | Close to **source** |
+| Granularity | Low | High |
+| CCNA Exam | ✅ Yes | ✅ Yes |
 
 </details>
 
@@ -356,8 +484,9 @@ Neighbor ID   State   Interface
 │  ✅  Lab 11  →  OSPF Dual Router + ISP Link                           │
 │  ✅  Lab 12  →  OSPF Multi-Router Serial WAN                          │
 │  ✅  Lab 13  →  OSPF + HSRP Gateway Redundancy                        │
-│  ✅  Lab 14  →  Transport Layer: TCP vs UDP Deep Dive  ◄ YOU ARE HERE │
-│  ⏳  Next    →  ACLs · NAT/PAT · DHCP · WAN                           │
+│  ✅  Lab 14  →  Transport Layer: TCP vs UDP Deep Dive                  │
+│  ✅  Lab 15  →  Standard ACLs: Traffic Filtering & Security ◄ YOU ARE HERE │
+│  ⏳  Next    →  Extended ACLs · NAT/PAT · DHCP · WAN                  │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -366,6 +495,11 @@ Neighbor ID   State   Interface
 ## 🧪 Master Verification Commands
 
 ```bash
+# ACL
+show ip access-lists              # All ACLs with match counters
+show ip interface [int]           # Shows inbound/outbound ACL on interface
+show running-config | include access  # Quick ACL config grep
+
 # HSRP
 show standby brief               # HSRP Active/Standby state + Virtual IP
 show standby                     # Full HSRP details

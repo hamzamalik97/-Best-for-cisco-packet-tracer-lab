@@ -1,13 +1,13 @@
 # 🖧 Cisco Packet Tracer Lab Repository
 
 > 📚 A structured, hands-on collection of Cisco networking labs and protocol deep-dives — built while preparing for **CCNA (200-301)**
-> From basic ARP/ICMP to OSPF + HSRP redundancy, Standard ACLs, Transport Layer analysis with packet-level breakdowns.
+> From basic ARP/ICMP to OSPF, HSRP, Standard & Extended ACLs, Transport Layer analysis with packet-level breakdowns.
 
 <div align="center">
 
 ![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
 ![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
-![Labs](https://img.shields.io/badge/Total%20Labs-15-FF6B35?style=for-the-badge)
+![Labs](https://img.shields.io/badge/Total%20Labs-16-FF6B35?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
 
 </div>
@@ -46,7 +46,8 @@
 | `12` | `ospf-multirouter-serial-wan.pkt` | OSPF Multi-Router Serial WAN | OSPF, Serial Links, /29 Wildcard | 2911, 3x CGR1240, 2x PC |
 | `13` | `ospf-HSRP.pkt` | OSPF + HSRP Gateway Redundancy | OSPF, HSRP, Virtual IP, Mesh Switches | 3x ISR4331, 4x Switch, 2x PC |
 | `14` | `Transport_Layer_Documentation.pdf` | Transport Layer Analysis: TCP vs. UDP Deep Dive | TCP/UDP, 3-Way Handshake, Flow Control, Wireshark Trace | Written Protocol Analysis |
-| `15` | `standard-acl-lab.pkt` | Standard ACLs — Traffic Filtering & Security ⭐ | Standard ACL, Wildcard Mask, `ip access-group` | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
+| `15` | `standard-acl-lab.pkt` | Standard ACLs — Traffic Filtering & Security | Standard ACL, Wildcard Mask, `ip access-group` | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
+| `16` | `extended-acl-server-dept-lab.pkt` | Extended ACLs — Server Protection & Department Isolation ⭐ | Extended ACL, Named ACL, TCP/UDP Port Matching, Sequence Numbers | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
 
 </div>
 
@@ -164,7 +165,7 @@ No.  Source          Destination     Protocol  Info
 ---
 
 <details>
-<summary>📦 <b>Lab 15 — Standard ACLs: Traffic Filtering & Security ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 15 — Standard ACLs: Traffic Filtering & Security</b></summary>
 
 ### 🗺️ Topology
 
@@ -285,6 +286,142 @@ Router# show ip interface GigabitEthernet0/1
 | Placement Rule | Close to **destination** | Close to **source** |
 | Granularity | Low | High |
 | CCNA Exam | ✅ Yes | ✅ Yes |
+
+</details>
+
+---
+
+<details>
+<summary>📦 <b>Lab 16 — Extended ACLs: Server Protection & Department Isolation ⭐ LATEST</b></summary>
+
+### 🗺️ Topology
+
+```
+  [PC1 172.16.1.1]  [PC0 172.16.1.2]
+         |                  |
+       Fa0/1             Fa0/2
+          \               /
+           Switch1 (Fa0/1)
+                 |
+           Gig0/0 (172.16.1.x/24)
+              Router0 (2911)
+           Gig0/2 (WAN) ──── Router2 (2911)
+                                 |            \
+                           Gig0/1 (192.168.1.1)  Fa0/1 (192.168.2.1)
+                           Switch2              Switch3
+                             |                    |
+                        [Server0 192.168.1.100]  [Server1 192.168.2.100]
+```
+
+---
+
+### 📋 Task Breakdown
+
+| Task | Objective | ACL Name | Applied On |
+|------|-----------|----------|------------|
+| **1** | Allow only HTTP/HTTPS from `172.16.2.0/24` + ICMP from any to Server0. Block all other traffic to Server0. | `To-server0` (Extended) | Router2 `Gig0/0` **in** |
+| **2** | Block `172.16.1.0/24` from reaching `172.16.2.0/24`. Allow internet access. | `TO-172.16.2.0` (Extended) | Router0 `Gig0/2` **in** |
+| **3** | Block specific host PC0 (`172.16.1.1`) from reaching Server1 (`192.168.2.100`) only. | Injected at sequence **line 5** of `TO-172.16.2.0` | Same interface |
+
+> 💡 **Extended ACL Rule:** Place extended ACLs as **close to the source** as possible — they can filter by source IP, destination IP, protocol, and port, so early placement saves bandwidth.
+
+---
+
+### ⚙️ Configuration
+
+#### Task 1 — Router2: Named Extended ACL (Server0 Protection)
+```bash
+ip access-list extended To-server0
+ permit tcp 172.16.2.0 0.0.0.255 host 192.168.1.100 eq www
+ permit tcp 172.16.2.0 0.0.0.255 host 192.168.1.100 eq 443
+ permit icmp any host 192.168.1.100
+ deny ip any host 192.168.1.100
+ permit ip any any
+
+interface GigabitEthernet0/0
+ ip access-group To-server0 in
+```
+
+#### Task 2 — Router0: Department Isolation (LAN1 → LAN2 blocked)
+```bash
+ip access-list extended TO-172.16.2.0
+ deny ip 172.16.1.0 0.0.0.255 172.16.2.0 0.0.0.255
+ permit ip any any
+
+interface GigabitEthernet0/2
+ ip access-group TO-172.16.2.0 in
+```
+
+#### Task 3 — Inject Host Rule at Sequence Line 5 (PC0 → Server1 blocked)
+```bash
+! Inject specific host rule ABOVE the subnet rule without rewriting the ACL
+ip access-list extended TO-172.16.2.0
+ 5 deny ip host 172.16.1.1 host 192.168.2.100
+```
+
+#### Final Consolidated ACL on Router0
+```bash
+Extended IP access list TO-172.16.2.0
+ 5 deny ip host 172.16.1.1 host 192.168.2.100
+ 10 deny ip 172.16.1.0 0.0.0.255 172.16.2.0 0.0.0.255
+ 20 permit ip any any
+```
+
+---
+
+### 🔑 Key Concepts Applied
+
+| Concept | Explanation |
+|---------|-------------|
+| **One ACL per interface/direction** | Combined Tasks 2 & 3 into one ACL to avoid overwriting — strict IOS rule |
+| **Extended placement near source** | Applied on Router0 `Gig0/2` inbound to drop packets before they enter the WAN |
+| **Sequence number injection** | Added host-specific rule at line 5 to slot above the broader subnet deny at line 10 — no need to delete and rewrite |
+| **`host` keyword** | Equivalent to `0.0.0.0` wildcard mask — targets a single IP precisely without accidentally matching a subnet |
+| **Top-to-bottom processing** | Most specific rule first (line 5: single host), then broader (line 10: subnet), then global permit (line 20) |
+
+---
+
+### 🧪 Verification Commands
+
+```bash
+! View ACL with match counters
+Router# show ip access-lists
+
+Extended IP access list To-server0
+    10 permit tcp 172.16.2.0 0.0.0.255 host 192.168.1.100 eq www
+    20 permit tcp 172.16.2.0 0.0.0.255 host 192.168.1.100 eq 443
+    30 permit icmp any host 192.168.1.100
+    40 deny ip any host 192.168.1.100
+    50 permit ip any any
+
+Extended IP access list TO-172.16.2.0
+    5  deny ip host 172.16.1.1 host 192.168.2.100
+    10 deny ip 172.16.1.0 0.0.0.255 172.16.2.0 0.0.0.255
+    20 permit ip any any
+
+! Verify ACL applied to interface
+Router# show ip interface GigabitEthernet0/0
+  Inbound access list is To-server0
+
+Router# show ip interface GigabitEthernet0/2
+  Inbound access list is TO-172.16.2.0
+```
+
+---
+
+### 📊 Standard vs Extended ACL — Full Comparison
+
+| Feature | Standard ACL | Extended ACL |
+|---------|-------------|--------------|
+| ACL Number Range | 1 – 99 | 100 – 199 |
+| Named ACL | ✅ | ✅ |
+| Filter by Source IP | ✅ | ✅ |
+| Filter by Dest IP | ❌ | ✅ |
+| Filter by Port/Protocol | ❌ | ✅ (TCP, UDP, ICMP, etc.) |
+| Placement | Near **destination** | Near **source** |
+| Granularity | Low | High |
+| Sequence Injection | ✅ | ✅ |
+| CCNA Exam | ✅ | ✅ |
 
 </details>
 
@@ -485,8 +622,9 @@ Neighbor ID   State   Interface
 │  ✅  Lab 12  →  OSPF Multi-Router Serial WAN                          │
 │  ✅  Lab 13  →  OSPF + HSRP Gateway Redundancy                        │
 │  ✅  Lab 14  →  Transport Layer: TCP vs UDP Deep Dive                  │
-│  ✅  Lab 15  →  Standard ACLs: Traffic Filtering & Security ◄ YOU ARE HERE │
-│  ⏳  Next    →  Extended ACLs · NAT/PAT · DHCP · WAN                  │
+│  ✅  Lab 15  →  Standard ACLs: Traffic Filtering & Security           │
+│  ✅  Lab 16  →  Extended ACLs: Server Protection & Dept Isolation ◄ YOU ARE HERE │
+│  ⏳  Next    →  NAT/PAT · DHCP · DNS · WAN                            │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 

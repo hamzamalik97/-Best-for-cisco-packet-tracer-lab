@@ -7,7 +7,7 @@
 
 ![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
 ![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
-![Labs](https://img.shields.io/badge/Total%20Labs-16-FF6B35?style=for-the-badge)
+![Labs](https://img.shields.io/badge/Total%20Labs-17-FF6B35?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
 
 </div>
@@ -47,7 +47,8 @@
 | `13` | `ospf-HSRP.pkt` | OSPF + HSRP Gateway Redundancy | OSPF, HSRP, Virtual IP, Mesh Switches | 3x ISR4331, 4x Switch, 2x PC |
 | `14` | `Transport_Layer_Documentation.pdf` | Transport Layer Analysis: TCP vs. UDP Deep Dive | TCP/UDP, 3-Way Handshake, Flow Control, Wireshark Trace | Written Protocol Analysis |
 | `15` | `standard-acl-lab.pkt` | Standard ACLs — Traffic Filtering & Security | Standard ACL, Wildcard Mask, `ip access-group` | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
-| `16` | `extended-acl-server-dept-lab.pkt` | Extended ACLs — Server Protection & Department Isolation ⭐ | Extended ACL, Named ACL, TCP/UDP Port Matching, Sequence Numbers | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
+| `16` | `extended-acl-server-dept-lab.pkt` | Extended ACLs — Server Protection & Department Isolation | Extended ACL, Named ACL, TCP/UDP Port Matching, Sequence Numbers | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
+| `17` | `cdp-lldp-neighbor-discovery-lab.pkt` | CDP vs LLDP — Neighbor Discovery Protocol Replacement ⭐ | CDP, LLDP, `lldp run`, `lldp transmit`, `lldp receive`, 802.1AB | 3x Router |
 
 </div>
 
@@ -292,7 +293,110 @@ Router# show ip interface GigabitEthernet0/1
 ---
 
 <details>
-<summary>📦 <b>Lab 16 — Extended ACLs: Server Protection & Department Isolation ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 17 — CDP vs LLDP: Neighbor Discovery Protocol Replacement ⭐ LATEST</b></summary>
+
+### 🗺️ Topology
+
+```
+          192.168.1.0/24
+               LAN
+                |
+            Router1
+           /        \
+  g0/2 /              \ g0/0
+192.168.2.0/30    192.168.3.0/30
+       /                  \
+  Router3 ─────────────── Router2
+        192.168.4.0/30
+```
+
+| Link | Subnet |
+|------|--------|
+| R1 ↔ R2 | `192.168.3.0/30` |
+| R1 ↔ R3 | `192.168.2.0/30` |
+| R2 ↔ R3 | `192.168.4.0/30` |
+
+---
+
+### 🔁 CDP vs LLDP — Core Comparison
+
+| Feature | CDP | LLDP |
+|---------|-----|------|
+| Standard | Cisco proprietary | IEEE 802.1AB (open standard) |
+| Vendor Support | Cisco only | Multi-vendor |
+| Layer | Layer 2 | Layer 2 |
+| Default State | Enabled on Cisco devices | Disabled by default |
+| Interface Config | Not required | Must enable transmit & receive per interface |
+| Use Case | Cisco-only environments | Mixed-vendor enterprise networks |
+| CCNA Exam | ✅ | ✅ |
+
+---
+
+### ⚙️ Configuration
+
+#### Step 1 — Disable CDP on Router3
+```bash
+Router3(config)# no cdp run
+```
+
+#### Step 2 — Enable LLDP Globally on Router3
+```bash
+Router3(config)# lldp run
+```
+
+#### Step 3 — Enable LLDP on Router3 Interfaces
+```bash
+Router3(config)# interface g0/0
+Router3(config-if)# lldp transmit
+Router3(config-if)# lldp receive
+
+Router3(config)# interface g0/1
+Router3(config-if)# lldp transmit
+Router3(config-if)# lldp receive
+```
+
+#### Step 4 — Enable LLDP on Neighboring Routers
+
+**Router1 (interface toward Router3):**
+```bash
+Router1(config)# lldp run
+Router1(config)# interface g0/2
+Router1(config-if)# lldp transmit
+Router1(config-if)# lldp receive
+```
+
+**Router2 (interface toward Router3):**
+```bash
+Router2(config)# lldp run
+Router2(config)# interface g0/0
+Router2(config-if)# lldp transmit
+Router2(config-if)# lldp receive
+```
+
+---
+
+### 🧪 Verification Commands
+
+```bash
+! Verify LLDP neighbors
+Router3# show lldp neighbors
+! Detailed neighbor info (device ID, IP, platform, capabilities)
+Router3# show lldp neighbors detail
+! Check LLDP global status
+Router3# show lldp
+! Confirm CDP is disabled
+Router3# show cdp
+Router3# show cdp neighbors
+```
+
+> ✅ Expected: Router3 shows Router1 and Router2 as LLDP neighbors. CDP returns no output or error — confirming it is disabled.
+
+</details>
+
+---
+
+<details>
+<summary>📦 <b>Lab 16 — Extended ACLs: Server Protection & Department Isolation</b></summary>
 
 ### 🗺️ Topology
 
@@ -622,8 +726,8 @@ Neighbor ID   State   Interface
 │  ✅  Lab 12  →  OSPF Multi-Router Serial WAN                          │
 │  ✅  Lab 13  →  OSPF + HSRP Gateway Redundancy                        │
 │  ✅  Lab 14  →  Transport Layer: TCP vs UDP Deep Dive                  │
-│  ✅  Lab 15  →  Standard ACLs: Traffic Filtering & Security           │
-│  ✅  Lab 16  →  Extended ACLs: Server Protection & Dept Isolation ◄ YOU ARE HERE │
+│  ✅  Lab 16  →  Extended ACLs: Server Protection & Dept Isolation     │
+│  ✅  Lab 17  →  CDP vs LLDP: Neighbor Discovery  ◄ YOU ARE HERE      │
 │  ⏳  Next    →  NAT/PAT · DHCP · DNS · WAN                            │
 └──────────────────────────────────────────────────────────────────────┘
 ```

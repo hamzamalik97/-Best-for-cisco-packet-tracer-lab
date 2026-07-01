@@ -7,7 +7,7 @@
 
 ![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
 ![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
-![Labs](https://img.shields.io/badge/Total%20Labs-17-FF6B35?style=for-the-badge)
+![Labs](https://img.shields.io/badge/Total%20Labs-18-FF6B35?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
 
 </div>
@@ -48,7 +48,8 @@
 | `14` | `Transport_Layer_Documentation.pdf` | Transport Layer Analysis: TCP vs. UDP Deep Dive | TCP/UDP, 3-Way Handshake, Flow Control, Wireshark Trace | Written Protocol Analysis |
 | `15` | `standard-acl-lab.pkt` | Standard ACLs — Traffic Filtering & Security | Standard ACL, Wildcard Mask, `ip access-group` | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
 | `16` | `extended-acl-server-dept-lab.pkt` | Extended ACLs — Server Protection & Department Isolation | Extended ACL, Named ACL, TCP/UDP Port Matching, Sequence Numbers | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
-| `17` | `cdp-lldp-neighbor-discovery-lab.pkt` | CDP vs LLDP — Neighbor Discovery Protocol Replacement ⭐ | CDP, LLDP, `lldp run`, `lldp transmit`, `lldp receive`, 802.1AB | 3x Router |
+| `17` | `cdp-lldp-neighbor-discovery-lab.pkt` | CDP vs LLDP — Neighbor Discovery Protocol Replacement | CDP, LLDP, `lldp run`, `lldp transmit`, `lldp receive`, 802.1AB | 3x Router |
+| `18` | `ntp-synchronization-lab.pkt` | NTP — Network Time Protocol Synchronization ⭐ | NTP Master, NTP Client, Stratum, `ntp master`, `ntp server`, `show ntp associations` | 3x 2911 Router, NTP Server |
 
 </div>
 
@@ -293,7 +294,126 @@ Router# show ip interface GigabitEthernet0/1
 ---
 
 <details>
-<summary>📦 <b>Lab 17 — CDP vs LLDP: Neighbor Discovery Protocol Replacement ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 18 — NTP: Network Time Protocol Synchronization ⭐ LATEST</b></summary>
+
+### 🗺️ Topology
+
+```
+  [NTP Server 203.10.1.1]
+           |
+     203.10.1.0/24
+           |
+        Router0 (Edge Gateway)
+           |
+     192.168.1.0/24
+           |
+        Router1 (NTP Master / Primary)
+           |
+     192.168.2.0/24
+           |
+        Router2 (NTP Client)
+```
+
+| Link | Subnet |
+|------|--------|
+| Router0 ↔ NTP Server | `203.10.1.0/24` |
+| Router0 ↔ Router1 | `192.168.1.0/24` |
+| Router1 ↔ Router2 | `192.168.2.0/24` |
+
+---
+
+### 💡 Why NTP Matters
+
+| Use Case | Why Time Sync is Critical |
+|----------|--------------------------|
+| **Log Analysis** | Timestamps across devices must match to correlate events |
+| **SOC / Security Auditing** | Alerts and incidents depend on accurate time ordering |
+| **Troubleshooting** | Mismatched clocks make it impossible to trace packet flow across routers |
+| **Certificate Validation** | TLS/SSL certificates fail if device clock is wrong |
+
+---
+
+### ⚙️ Configuration
+
+#### Step 1 — Set Manual Clock on Router1 (Baseline)
+```bash
+Router1# clock set 10:00:00 1 July 2026
+```
+
+#### Step 2 — Configure Router1 as NTP Master
+```bash
+Router1(config)# ntp master 3
+! Stratum 3 = 3 hops from a reference clock
+! Lower stratum = more authoritative
+```
+
+#### Step 3 — Sync Router2 to Router1
+```bash
+Router2(config)# ntp server 192.168.3.1
+! Point Router2 at Router1's interface IP as its NTP source
+```
+
+#### Step 4 — (Optional) Sync Router0 to External NTP Server
+```bash
+Router0(config)# ntp server 203.10.1.1
+```
+
+---
+
+### 🧪 Verification
+
+```bash
+! View NTP associations and sync status
+Router2# show ntp associations
+
+  address          ref clock     st   when   poll   reach   delay
+  *~192.168.3.1    127.127.1.1    8    19     32     337     11.00
+  offset: 0.00   disp: 0.24
+
+! Legend:
+! * = sys.peer (currently synced to this source)
+! ~ = configured (manually set as NTP server)
+! st = stratum level
+
+! Verify synchronized clock
+Router2# show clock
+! Confirm NTP status globally
+Router2# show ntp status
+```
+
+> ✅ `*~192.168.3.1` as sys.peer confirms Router2 is successfully synchronized to Router1.
+
+---
+
+### 📊 NTP Stratum Levels
+
+| Stratum | Meaning |
+|---------|---------|
+| **1** | Directly connected to atomic/GPS reference clock |
+| **2** | Synced from a Stratum 1 source |
+| **3** | Synced from a Stratum 2 source (Router1 in this lab) |
+| **15** | Maximum usable stratum |
+| **16** | Unsynchronized / unreachable |
+
+---
+
+### 📊 Key NTP Commands Summary
+
+| Command | Purpose |
+|---------|---------|
+| `ntp master <stratum>` | Make this router an NTP server |
+| `ntp server <ip>` | Point this router to an NTP source |
+| `show ntp associations` | View sync status and peer details |
+| `show ntp status` | Show if clock is synchronized, stratum, and reference |
+| `show clock` | Display current system time |
+| `clock set` | Manually set the system clock |
+
+</details>
+
+---
+
+<details>
+<summary>📦 <b>Lab 17 — CDP vs LLDP: Neighbor Discovery Protocol Replacement</b></summary>
 
 ### 🗺️ Topology
 
@@ -726,8 +846,8 @@ Neighbor ID   State   Interface
 │  ✅  Lab 12  →  OSPF Multi-Router Serial WAN                          │
 │  ✅  Lab 13  →  OSPF + HSRP Gateway Redundancy                        │
 │  ✅  Lab 14  →  Transport Layer: TCP vs UDP Deep Dive                  │
-│  ✅  Lab 16  →  Extended ACLs: Server Protection & Dept Isolation     │
-│  ✅  Lab 17  →  CDP vs LLDP: Neighbor Discovery  ◄ YOU ARE HERE      │
+│  ✅  Lab 17  →  CDP vs LLDP: Neighbor Discovery                      │
+│  ✅  Lab 18  →  NTP: Network Time Protocol Synchronization ◄ YOU ARE HERE │
 │  ⏳  Next    →  NAT/PAT · DHCP · DNS · WAN                            │
 └──────────────────────────────────────────────────────────────────────┘
 ```

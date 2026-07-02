@@ -7,7 +7,7 @@
 
 ![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
 ![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
-![Labs](https://img.shields.io/badge/Total%20Labs-18-FF6B35?style=for-the-badge)
+![Labs](https://img.shields.io/badge/Total%20Labs-19-FF6B35?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
 
 </div>
@@ -49,7 +49,8 @@
 | `15` | `standard-acl-lab.pkt` | Standard ACLs — Traffic Filtering & Security | Standard ACL, Wildcard Mask, `ip access-group` | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
 | `16` | `extended-acl-server-dept-lab.pkt` | Extended ACLs — Server Protection & Department Isolation | Extended ACL, Named ACL, TCP/UDP Port Matching, Sequence Numbers | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
 | `17` | `cdp-lldp-neighbor-discovery-lab.pkt` | CDP vs LLDP — Neighbor Discovery Protocol Replacement | CDP, LLDP, `lldp run`, `lldp transmit`, `lldp receive`, 802.1AB | 3x Router |
-| `18` | `ntp-synchronization-lab.pkt` | NTP — Network Time Protocol Synchronization ⭐ | NTP Master, NTP Client, Stratum, `ntp master`, `ntp server`, `show ntp associations` | 3x 2911 Router, NTP Server |
+| `18` | `ntp-synchronization-lab.pkt` | NTP — Network Time Protocol Synchronization | NTP Master, NTP Client, Stratum, `ntp master`, `ntp server`, `show ntp associations` | 3x 2911 Router, NTP Server |
+| `19` | `dns-http-server-lab.pkt` | DNS & HTTP Server — Domain Name Resolution & Web Access ⭐ | DNS, HTTP/HTTPS, `ip host`, `ip name-server`, Static IP, Hostname Resolution | Router, DNS Server, HTTP Server, PCs |
 
 </div>
 
@@ -294,7 +295,116 @@ Router# show ip interface GigabitEthernet0/1
 ---
 
 <details>
-<summary>📦 <b>Lab 18 — NTP: Network Time Protocol Synchronization ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 19 — DNS & HTTP Server: Domain Name Resolution & Web Access ⭐ LATEST</b></summary>
+
+### 🗺️ Topology Overview
+
+```
+  [PC0]  [PC1]
+     \    /
+    Switch
+       |
+    Router ──── DNS Server (ip name-server)
+       |
+    HTTP/HTTPS Web Server
+```
+
+---
+
+### 🎯 Lab Objectives
+
+| Objective | Details |
+|-----------|---------|
+| Configure DNS Server | Map domain names (e.g. `www.utube.com`) to web server IP addresses |
+| Configure HTTP Server | Host a web page accessible via domain name |
+| Router hostname resolution | Use `ip name-server` to point router at DNS server |
+| Client PC resolution | Set DNS server IP on each PC for hostname lookups |
+| Verify resolution | `ping www.utube.com` resolves and succeeds from PCs |
+| Browser test | Open domain name in PC browser — page loads correctly |
+
+---
+
+### 💡 DNS Resolution Methods — Key Differences
+
+| Method | Scope | Used By |
+|--------|-------|---------|
+| `ip host <name> <ip>` | Local router only — static hostname mapping | Router CLI only |
+| `ip name-server <ip>` | Points the router to an external DNS server | Router DNS lookups |
+| DNS Server (PC config) | Resolves names for end devices | Client PCs / hosts |
+
+> 💡 `ip host` only works for the router itself. Client PCs need a DNS server configured separately to resolve domain names.
+
+---
+
+### ⚙️ Configuration
+
+#### DNS Server Setup (Packet Tracer GUI)
+```
+Service: DNS  →  ON
+Record Type: A Record
+Name:    www.utube.com
+Address: <HTTP Server IP>
+→ Add → Save
+```
+
+#### HTTP Server Setup (Packet Tracer GUI)
+```
+Service: HTTP  →  ON
+Service: HTTPS →  ON
+```
+
+#### Router — Point to DNS Server
+```bash
+Router(config)# ip name-server <DNS-Server-IP>
+Router(config)# ip domain-lookup
+```
+
+#### PC Configuration
+```
+PC IP Settings:
+  DNS Server: <DNS-Server-IP>
+```
+
+---
+
+### 🧪 Verification
+
+```bash
+! From Router CLI — test hostname resolution
+Router# ping www.utube.com
+
+! From PC — open browser and navigate to:
+http://www.utube.com
+! Page should load if DNS and HTTP server are correctly configured
+
+! Verify DNS server reachability
+Router# ping <DNS-Server-IP>
+
+! Check static hostname mappings on router
+Router# show hosts
+```
+
+> ✅ Successful `ping www.utube.com` from both router and PCs confirms DNS is resolving correctly.
+> ✅ Web page loading in PC browser confirms HTTP server is reachable via domain name.
+
+---
+
+### 📊 DNS Record Types (CCNA Scope)
+
+| Record Type | Purpose |
+|-------------|---------|
+| **A** | Maps hostname → IPv4 address |
+| **AAAA** | Maps hostname → IPv6 address |
+| **CNAME** | Alias — maps one hostname to another |
+| **PTR** | Reverse lookup — maps IP → hostname |
+| **MX** | Mail exchange server for a domain |
+
+</details>
+
+---
+
+<details>
+<summary>📦 <b>Lab 18 — NTP: Network Time Protocol Synchronization</b></summary>
 
 ### 🗺️ Topology
 
@@ -846,9 +956,9 @@ Neighbor ID   State   Interface
 │  ✅  Lab 12  →  OSPF Multi-Router Serial WAN                          │
 │  ✅  Lab 13  →  OSPF + HSRP Gateway Redundancy                        │
 │  ✅  Lab 14  →  Transport Layer: TCP vs UDP Deep Dive                  │
-│  ✅  Lab 17  →  CDP vs LLDP: Neighbor Discovery                      │
-│  ✅  Lab 18  →  NTP: Network Time Protocol Synchronization ◄ YOU ARE HERE │
-│  ⏳  Next    →  NAT/PAT · DHCP · DNS · WAN                            │
+│  ✅  Lab 18  →  NTP: Network Time Protocol Synchronization            │
+│  ✅  Lab 19  →  DNS & HTTP Server: Domain Name Resolution ◄ YOU ARE HERE │
+│  ⏳  Next    →  NAT/PAT · DHCP · WAN                                  │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 

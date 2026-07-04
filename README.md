@@ -7,7 +7,7 @@
 
 ![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
 ![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
-![Labs](https://img.shields.io/badge/Total%20Labs-19-FF6B35?style=for-the-badge)
+![Labs](https://img.shields.io/badge/Total%20Labs-21-FF6B35?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
 
 </div>
@@ -50,13 +50,178 @@
 | `16` | `extended-acl-server-dept-lab.pkt` | Extended ACLs — Server Protection & Department Isolation | Extended ACL, Named ACL, TCP/UDP Port Matching, Sequence Numbers | 2x 2911 Router, 4x Switch, 4x PC, 2x Server |
 | `17` | `cdp-lldp-neighbor-discovery-lab.pkt` | CDP vs LLDP — Neighbor Discovery Protocol Replacement | CDP, LLDP, `lldp run`, `lldp transmit`, `lldp receive`, 802.1AB | 3x Router |
 | `18` | `ntp-synchronization-lab.pkt` | NTP — Network Time Protocol Synchronization | NTP Master, NTP Client, Stratum, `ntp master`, `ntp server`, `show ntp associations` | 3x 2911 Router, NTP Server |
-| `19` | `dns-http-server-lab.pkt` | DNS & HTTP Server — Domain Name Resolution & Web Access ⭐ | DNS, HTTP/HTTPS, `ip host`, `ip name-server`, Static IP, Hostname Resolution | Router, DNS Server, HTTP Server, PCs |
+| `19` | `dns-http-server-lab.pkt` | DNS & HTTP Server — Domain Name Resolution & Web Access | DNS, HTTP/HTTPS, `ip host`, `ip name-server`, Static IP, Hostname Resolution | Router, DNS Server, HTTP Server, PCs |
+| `20` | `dhcp-server-config-lab.pkt` | DHCP — Dynamic Host Configuration Protocol | DHCP Pool, `ip dhcp pool`, `ip dhcp excluded-address`, Default Gateway, DNS assignment | Router, Switch, PCs |
+| `21` | `snmp-community-config-lab.pkt` | SNMP — Community Strings & Network Monitoring ⭐ | SNMP RO/RW Communities, `snmp-server community`, `service timestamp log datetime msec`, `sh run sect snmp` | 2911 Router, 2960 Switch, PC |
 
 </div>
 
 ---
 
 ## 🎯 Lab Highlights
+
+<details>
+<summary>📦 <b>Lab 21 — SNMP: Community Strings & Network Monitoring ⭐ LATEST</b></summary>
+
+### 🗺️ Topology
+
+```
+  Router0 (2911)
+  Gig0/0 → .1
+       |
+  192.168.1.0/30
+       |
+  Switch0 (2960-24TT)
+  Fa0/1 ←→ Fa0/2
+       |
+      PC0 → .2
+```
+
+| Device | Interface | IP |
+|--------|-----------|-----|
+| Router0 | Gig0/0 | `192.168.1.1/30` |
+| PC0 | Fa0 | `192.168.1.2/30` |
+
+---
+
+### 💡 What is SNMP?
+
+| Concept | Explanation |
+|---------|-------------|
+| **SNMP** | Simple Network Management Protocol — monitors and manages network devices |
+| **Community String** | Acts like a password to authenticate SNMP access |
+| **RO (Read-Only)** | NMS can read device stats but cannot change config |
+| **RW (Read-Write)** | NMS can read AND modify device configuration |
+| **MIB** | Management Information Base — database of device info SNMP can query |
+| **CCNA Exam** | ✅ SNMP v2c and v3 are testable topics |
+
+---
+
+### ⚙️ Configuration
+
+#### Step 1 — Enable Millisecond Timestamps (for accurate log correlation)
+```bash
+Router(config)# service timestamp log datetime msec
+! Adds precise date/time + milliseconds to every log message
+! Critical for SOC log analysis and security auditing
+```
+
+#### Step 2 — Configure SNMP Community Strings
+```bash
+! Read-Only community — NMS can monitor only
+Router(config)# snmp-server community hamza1 RO
+
+! Read-Write community — NMS can monitor AND configure
+Router(config)# snmp-server community hamza2 RW
+```
+
+#### Step 3 — (Optional) Restrict SNMP Access with ACL
+```bash
+Router(config)# snmp-server community hamza1 RO 10
+! ACL 10 limits which hosts can use SNMP
+```
+
+---
+
+### 🧪 Verification
+
+```bash
+! Verify SNMP community strings in running config
+router11# sh run | sect snmp
+snmp-server community hamza1 RO
+snmp-server community hamza2 RW
+
+! Check timestamp logging is active
+Router# sh run | inc timestamp
+service timestamps log datetime msec
+
+! View SNMP statistics
+Router# show snmp
+```
+
+---
+
+### 📊 SNMP Versions Comparison
+
+| Feature | SNMPv1 | SNMPv2c | SNMPv3 |
+|---------|--------|---------|--------|
+| Security | Community string only | Community string only | Username + Auth + Encryption |
+| Encryption | ❌ | ❌ | ✅ |
+| Authentication | Weak | Weak | Strong |
+| CCNA Scope | ✅ | ✅ | ✅ |
+| Recommended | ❌ | ❌ (legacy) | ✅ Production use |
+
+> 💡 **SOC Relevance:** SNMP traps feed directly into SIEM platforms like Splunk and Wazuh — device failures, interface down events, and config changes all trigger SNMP traps that a SOC analyst monitors.
+
+</details>
+
+---
+
+<details>
+<summary>📦 <b>Lab 20 — DHCP: Dynamic Host Configuration Protocol</b></summary>
+
+### 🗺️ Topology Overview
+
+```
+  [PC0]  [PC1]  [PC2]
+     \     |     /
+       Switch0
+           |
+        Router0
+     (DHCP Server)
+```
+
+### 🎯 Lab Objectives
+
+| Objective | Command |
+|-----------|---------|
+| Exclude static IPs from pool | `ip dhcp excluded-address` |
+| Create DHCP pool | `ip dhcp pool` |
+| Set network range | `network <ip> <mask>` |
+| Set default gateway | `default-router <ip>` |
+| Set DNS server | `dns-server <ip>` |
+| Verify assignments | `show ip dhcp binding` |
+
+---
+
+### ⚙️ Configuration
+
+```bash
+! Step 1 — Exclude static/reserved IPs from being assigned
+Router(config)# ip dhcp excluded-address 192.168.1.1 192.168.1.10
+
+! Step 2 — Create DHCP pool
+Router(config)# ip dhcp pool LAN-POOL
+Router(dhcp-config)# network 192.168.1.0 255.255.255.0
+Router(dhcp-config)# default-router 192.168.1.1
+Router(dhcp-config)# dns-server 8.8.8.8
+Router(dhcp-config)# lease 7
+! lease = how many days IP is reserved for that client
+```
+
+---
+
+### 🧪 Verification
+
+```bash
+! View all DHCP leases assigned
+Router# show ip dhcp binding
+
+! Check DHCP pool stats (available, used, expired)
+Router# show ip dhcp pool
+
+! View any conflicts (duplicate IPs)
+Router# show ip dhcp conflict
+
+! On PC — confirm auto-assigned IP
+PC> ipconfig /all
+```
+
+> ✅ PC should receive an IP from `192.168.1.11` onward (first available after excluded range).
+
+</details>
+
+---
 
 <details>
 <summary>📦 <b>Lab 14 — Transport Layer Analysis: TCP vs. UDP Deep Dive</b></summary>
@@ -956,9 +1121,14 @@ Neighbor ID   State   Interface
 │  ✅  Lab 12  →  OSPF Multi-Router Serial WAN                          │
 │  ✅  Lab 13  →  OSPF + HSRP Gateway Redundancy                        │
 │  ✅  Lab 14  →  Transport Layer: TCP vs UDP Deep Dive                  │
-│  ✅  Lab 18  →  NTP: Network Time Protocol Synchronization            │
-│  ✅  Lab 19  →  DNS & HTTP Server: Domain Name Resolution ◄ YOU ARE HERE │
-│  ⏳  Next    →  NAT/PAT · DHCP · WAN                                  │
+│  ✅  Lab 15  →  Standard ACLs: Traffic Filtering & Security            │
+│  ✅  Lab 16  →  Extended ACLs: Server Protection & Dept Isolation      │
+│  ✅  Lab 17  →  CDP vs LLDP: Neighbor Discovery                        │
+│  ✅  Lab 18  →  NTP: Network Time Protocol Synchronization             │
+│  ✅  Lab 19  →  DNS & HTTP Server: Domain Name Resolution              │
+│  ✅  Lab 20  →  DHCP: Dynamic Host Configuration Protocol              │
+│  ✅  Lab 21  →  SNMP: Community Strings & Network Monitoring ◄ YOU ARE HERE │
+│  ⏳  Next    →  NAT/PAT · WAN · Syslog · SSH Hardening                │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 

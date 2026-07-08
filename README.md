@@ -7,7 +7,7 @@
 
 ![Cisco](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
 ![CCNA](https://img.shields.io/badge/CCNA-200--301-00873E?style=for-the-badge&logo=cisco&logoColor=white)
-![Labs](https://img.shields.io/badge/Total%20Labs-21-FF6B35?style=for-the-badge)
+![Labs](https://img.shields.io/badge/Total%20Labs-22-FF6B35?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Actively%20Preparing-red?style=for-the-badge)
 
 </div>
@@ -52,7 +52,8 @@
 | `18` | `ntp-synchronization-lab.pkt` | NTP — Network Time Protocol Synchronization | NTP Master, NTP Client, Stratum, `ntp master`, `ntp server`, `show ntp associations` | 3x 2911 Router, NTP Server |
 | `19` | `dns-http-server-lab.pkt` | DNS & HTTP Server — Domain Name Resolution & Web Access | DNS, HTTP/HTTPS, `ip host`, `ip name-server`, Static IP, Hostname Resolution | Router, DNS Server, HTTP Server, PCs |
 | `20` | `dhcp-server-config-lab.pkt` | DHCP — Dynamic Host Configuration Protocol | DHCP Pool, `ip dhcp pool`, `ip dhcp excluded-address`, Default Gateway, DNS assignment | Router, Switch, PCs |
-| `21` | `snmp-community-config-lab.pkt` | SNMP — Community Strings & Network Monitoring ⭐ | SNMP RO/RW Communities, `snmp-server community`, `service timestamp log datetime msec`, `sh run sect snmp` | 2911 Router, 2960 Switch, PC |
+| `21` | `snmp-community-config-lab.pkt` | SNMP — Community Strings & Network Monitoring | SNMP RO/RW Communities, `snmp-server community`, `service timestamp log datetime msec`, `sh run sect snmp` | 2911 Router, 2960 Switch, PC |
+| `22` | `syslog-config-lab.pkt` | Syslog — Centralized Logging & Network Monitoring ⭐ | Syslog, `service timestamps log datetime msec`, `logging host`, `logging trap`, OOB vs In-Band Management | Router, Switch, Syslog Server, 2x PC |
 
 </div>
 
@@ -60,8 +61,185 @@
 
 ## 🎯 Lab Highlights
 
+<details open>
+<summary>📦 <b>Lab 22 — Syslog: Centralized Logging & Network Monitoring ⭐ LATEST</b></summary>
+
+### 🗺️ Topology
+
+```
+      [PC1] ──(Console Cable)── Router0 ──Gig0/0── Switch0
+   (OOB Management)                                   |
+                                          ┌────────────┼────────────┐
+                                        Fa0/1                     Fa0/2
+                                       [PC0]                   [Server0]
+                                  (In-Band, VTY            (Syslog Server,
+                                   via Switch)                UDP 514)
+```
+
+| Device | Interface | IP Address | Role |
+|--------|-----------|------------|------|
+| Router0 | Gig0/0 | `192.168.1.1/24` | Gateway / logging source |
+| Switch0 | — | — | L2 connectivity |
+| PC0 | Fa0 | `192.168.1.10/24` | In-band management (VTY/SSH/Telnet) |
+| PC1 | Console | — | Out-of-band management (direct console cable) |
+| Server0 | Fa0 | `192.168.1.100/24` | Syslog Server (UDP 514) |
+
+> 💡 Addressing above uses placeholder IPs consistent with the rest of this repo — swap in your own scheme if your `.pkt` file differs.
+
+---
+
+### 💡 What is Syslog?
+
+**Syslog** (System Logging Protocol) is a standard protocol used by network devices — routers, switches, firewalls — to send system status, events, diagnostics, and error messages to a centralized logging server. It lets administrators monitor network health from a single location instead of checking every device's local buffer individually.
+
+Every Cisco IOS syslog message follows a consistent format:
+
+```
+*Timestamp: %FACILITY-SEVERITY-MNEMONIC: Message-text
+```
+
+| Field | Meaning |
+|-------|---------|
+| **Timestamp** | When the event occurred (more precise once `service timestamps` is enabled) |
+| **Facility** | The subsystem that generated the message (e.g. `LINK`, `LINEPROTO`, `SYS`) |
+| **Severity** | Numeric urgency level, 0 (most severe) – 7 (least severe) |
+| **Mnemonic** | Short code identifying the specific event type (e.g. `CONFIG_I`, `UPDOWN`) |
+| **Message-text** | Human-readable description of the event |
+
+---
+
+### 📊 Syslog Severity Levels (CCNA Scope)
+
+| Level | Name | Example Use Case |
+|:-----:|------|-------------------|
+| **0** | Emergency | System unusable |
+| **1** | Alert | Immediate action required |
+| **2** | Critical | Critical condition |
+| **3** | Error | Error condition |
+| **4** | Warning | Warning condition |
+| **5** | Notification | Normal but significant event (interface up/down, config change) |
+| **6** | Informational | Informational message |
+| **7** | Debugging | Debug-level messages |
+
+> 💡 Mnemonic: **"Every Awesome Cisco Engineer Will Need Icecream Daily"** (Emergency, Alert, Critical, Error, Warning, Notification, Informational, Debugging).
+
+---
+
+### 🔍 Log Analysis — Reading Router0's Buffer
+
+#### 1️⃣ Interface Initialization
+```
+%LINK-5-CHANGED: Interface GigabitEthernet0/0, changed state to up
+%LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0, changed state to up
+```
+- The physical link (`LINK`) and the Layer 2 line protocol (`LINEPROTO`) on `Gig0/0` both transitioned to **up**.
+- Severity `5` = Notification — a normal but significant operational event.
+
+#### 2️⃣ Configuration Change
+```
+*Mar 01, 00:07:27.077: SYS-5-CONFIG_I: Configured from console by console
+```
+- Someone entered global configuration mode (`conf t`) directly via the physical **console port**.
+- The precise `hh:mm:ss.mmm` timestamp confirms `service timestamps` was already active when this fired.
+
+#### 3️⃣ Administrative Shutdown
+```
+*Mar 01, 00:37:38.373: %LINK-5-CHANGED: Interface GigabitEthernet0/0, changed state to administratively down
+```
+- 30 minutes later, an admin manually disabled the interface with the `shutdown` command — hence **"administratively down"** rather than a physical failure.
+
+---
+
+### ⚙️ Configuration
+
+#### Step 1 — Enable Millisecond Timestamps
+```bash
+Router0(config)# service timestamps log datetime msec
+! Appends precise date/time + milliseconds to every future log message
+! Critical for correlating events across multiple devices during forensic analysis
+```
+
+#### Step 2 — Set the Logging Buffer (Local RAM Storage)
+```bash
+Router0(config)# logging buffered 4096
+! Stores recent log messages in RAM (Log Buffer)
+! Cleared on reboot — not persistent, hence the need for a central server
+```
+
+#### Step 3 — Point Logging to the Syslog Server
+```bash
+Router0(config)# logging host 192.168.1.100
+! Forwards all log messages to Server0 over UDP port 514
+Router0(config)# logging trap informational
+! Sends messages at severity 6 (Informational) and more severe (0-6) to the server
+```
+
+#### Step 4 — Inspect VTY Lines (In-Band Access Paths)
+```bash
+Router0(config)# line vty ?
+! Displays available Virtual Terminal lines (commonly 0-15)
+! These are the paths PC0 uses for SSH/Telnet in-band management
+```
+
+---
+
+### 🧪 Verification
+
+```bash
+! View the local log buffer and current logging configuration
+Router0# show logging
+
+Syslog logging: enabled
+    Console logging: level debugging
+    Buffer logging: level debugging, 4096 bytes
+    Trap logging: level informational, 27 message lines logged
+        Logging to 192.168.1.100
+
+! Confirm timestamp service is active
+Router0# show run | include timestamps
+service timestamps log datetime msec
+
+! Confirm syslog server destination
+Router0# show run | include logging
+logging host 192.168.1.100
+logging trap informational
+```
+
+> ✅ `Logging to 192.168.1.100` confirms Router0 is actively forwarding messages to Server0 over UDP 514.
+
+---
+
+### 🔁 Out-of-Band vs In-Band Management
+
+| Method | Path | Device in This Lab | Used For |
+|--------|------|--------------------|----------|
+| **Out-of-Band (OOB)** | Direct console cable, bypasses the network entirely | PC1 | Initial setup, recovery, when the network itself is down |
+| **In-Band** | Over the network via VTY lines (SSH/Telnet) | PC0 | Day-to-day remote management once the network is up |
+
+> 💡 This is exactly why the log read `Configured from console by console` — that change came from PC1's direct OOB console session, not a network path.
+
+---
+
+### 📊 Syslog vs SNMP — Two Sides of Network Monitoring
+
+| Feature | Syslog | SNMP |
+|---------|--------|------|
+| Direction | Device pushes messages to server | NMS polls device (or receives traps) |
+| Transport | UDP 514 | UDP 161 (poll) / 162 (trap) |
+| Content | Free-text log messages | Structured MIB data |
+| Primary Use | Event logging, troubleshooting, auditing | Performance monitoring, config management |
+| Persistence | Server-side storage; local buffer is RAM-only | N/A (polled/queried in real time) |
+| SOC Relevance | Feeds directly into SIEM platforms (Splunk, Wazuh) for correlation | Traps feed into SIEM alongside syslog for device health |
+| CCNA Exam | ✅ | ✅ |
+
+> 💡 **SOC Relevance:** Centralizing logs via `logging host` means that even if Router0 reboots or crashes, the full event history survives on Server0 — critical for incident response and post-mortem analysis.
+
+</details>
+
+---
+
 <details>
-<summary>📦 <b>Lab 21 — SNMP: Community Strings & Network Monitoring ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 21 — SNMP: Community Strings & Network Monitoring</b></summary>
 
 ### 🗺️ Topology
 
@@ -460,7 +638,7 @@ Router# show ip interface GigabitEthernet0/1
 ---
 
 <details>
-<summary>📦 <b>Lab 19 — DNS & HTTP Server: Domain Name Resolution & Web Access ⭐ LATEST</b></summary>
+<summary>📦 <b>Lab 19 — DNS & HTTP Server: Domain Name Resolution & Web Access</b></summary>
 
 ### 🗺️ Topology Overview
 
@@ -1127,8 +1305,9 @@ Neighbor ID   State   Interface
 │  ✅  Lab 18  →  NTP: Network Time Protocol Synchronization             │
 │  ✅  Lab 19  →  DNS & HTTP Server: Domain Name Resolution              │
 │  ✅  Lab 20  →  DHCP: Dynamic Host Configuration Protocol              │
-│  ✅  Lab 21  →  SNMP: Community Strings & Network Monitoring ◄ YOU ARE HERE │
-│  ⏳  Next    →  NAT/PAT · WAN · Syslog · SSH Hardening                │
+│  ✅  Lab 21  →  SNMP: Community Strings & Network Monitoring           │
+│  ✅  Lab 22  →  Syslog: Centralized Logging & Network Monitoring ◄ YOU ARE HERE │
+│  ⏳  Next    →  NAT/PAT · WAN · SSH Hardening                          │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1151,6 +1330,11 @@ show ip ospf neighbor            # Neighbor adjacency & FULL state
 show ip route ospf               # OSPF-learned routes only
 show ip ospf database            # Full LSDB
 show ip protocols                # OSPF process & Router ID
+
+# Syslog
+show logging                     # Log buffer, trap level, and destination host
+show run | include logging       # Quick grep for logging config
+show run | include timestamps    # Confirm timestamp service is active
 
 # General
 show ip route                    # Full routing table
